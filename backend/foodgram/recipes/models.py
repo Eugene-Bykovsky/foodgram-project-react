@@ -10,7 +10,8 @@ class Ingredient(models.Model):
         verbose_name='Название ингридиента'
     )
     quantity = models.PositiveSmallIntegerField(
-        verbose_name='Количество'
+        verbose_name='Количество',
+        null=True
     )
     measurement_unit = models.CharField(
         max_length=16,
