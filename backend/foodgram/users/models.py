@@ -62,5 +62,16 @@ class Subscription(models.Model):
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписчики'
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name='Вы уже подписались на данного автора.'
+            )
+        ]
+        ordering = ['-id']
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+
     def __str__(self):
         return f'{self.author.username}(автор рецепта) - {self.user.username}(подписчик)'
