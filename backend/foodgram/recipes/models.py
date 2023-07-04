@@ -9,10 +9,6 @@ class Ingredient(models.Model):
         max_length=200,
         verbose_name='Название ингридиента'
     )
-    quantity = models.PositiveSmallIntegerField(
-        verbose_name='Количество',
-        null=True
-    )
     measurement_unit = models.CharField(
         max_length=16,
         verbose_name='Единица измерения'
@@ -72,9 +68,11 @@ class Recipe(models.Model):
     description = models.TextField(
         verbose_name='Текстовое описание'
     )
-    ingredient = models.ManyToManyField(
+    ingredients = models.ManyToManyField(
         Ingredient,
-        verbose_name='Ингредиент'
+        through='RecipeIngredientAmount',
+        verbose_name='Ингредиенты',
+        related_name="recipes",
     )
     tag = models.ManyToManyField(
         Tag,
@@ -95,6 +93,32 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class RecipeIngredientAmount(models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт',
+        related_name='recipes'
+    )
+    ingredients = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        verbose_name='Ингредиент',
+        related_name='ingredients'
+    )
+    amount = models.PositiveSmallIntegerField(
+        verbose_name='Количество',
+        null=True
+    )
+
+    class Meta:
+        verbose_name = "Ингредиент в рецепте"
+        verbose_name_plural = "Ингредиенты в рецепте"
+
+    def __str__(self):
+        return self.ingredient.name
 
 
 class ShoppingCart(models.Model):

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Ingredient, Tag, Recipe, ShoppingCart, Favorite
+from .models import Ingredient, Tag, Recipe, ShoppingCart, Favorite, RecipeIngredientAmount
 
 
 @admin.register(Recipe)
@@ -20,3 +20,4 @@ admin.site.site_header = 'Административная страница пр
 admin.site.register(Tag)
 admin.site.register(ShoppingCart)
 admin.site.register(Favorite)
+admin.site.register(RecipeIngredientAmount)

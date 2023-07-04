@@ -66,7 +66,7 @@ class Subscription(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'author'],
-                name='Вы уже подписались на данного автора.'
+                name='subscription_unique'
             )
         ]
         ordering = ['-id']
