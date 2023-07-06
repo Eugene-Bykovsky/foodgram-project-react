@@ -5,9 +5,9 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
     username = models.CharField(
         max_length=150,
-        unique=True,
         verbose_name='Уникальный юзернейм',
-        help_text='Введите уникальный юзернейм. Обязательное поле.'
+        help_text='Введите уникальный юзернейм. Обязательное поле.',
+        unique=True
     )
     password = models.CharField(
         max_length=150,
@@ -16,9 +16,9 @@ class User(AbstractUser):
     )
     email = models.EmailField(
         max_length=254,
-        unique=True,
         verbose_name='Адрес электронной почты. Обязательное поле.',
-        help_text='Введите email'
+        help_text='Введите email',
+        unique=True
     )
     first_name = models.CharField(
         max_length=150,
@@ -45,22 +45,18 @@ class Subscription(models.Model):
         User,
         on_delete=models.CASCADE,
         verbose_name='Автор рецепта',
-        related_name='subscribers'
+        related_name='subscriber'
     )
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         verbose_name='Подписчик',
-        related_name='subscriptions'
+        related_name='subscription'
     )
     added_date = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата добавления'
     )
-
-    class Meta:
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписчики'
 
     class Meta:
         constraints = [
@@ -74,4 +70,4 @@ class Subscription(models.Model):
         verbose_name_plural = 'Подписки'
 
     def __str__(self):
-        return f'{self.user.username} подписан на {self.author.username}'
+        return f'Пользователь {self.user} подписан на {self.author}'
