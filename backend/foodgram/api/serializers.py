@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from djoser.serializers import UserSerializer, UserCreateSerializer
-from rest_framework.fields import SerializerMethodField
+from rest_framework.fields import SerializerMethodField, ReadOnlyField
 
-from recipes.models import Ingredient, Tag, Recipe
+from recipes.models import Ingredient, Tag, Recipe, RecipeIngredientAmount
 from users.models import User, Subscription
 
 
@@ -47,7 +47,27 @@ class UsersSerializer(UserSerializer):
         )
 
 
+class IngredientInRecipeSerializer(serializers.ModelSerializer):
+    id = ReadOnlyField(source='ingredient.id')
+    name = ReadOnlyField(source='ingredient.name')
+    measurement_unit = ReadOnlyField(source='ingredient.measurement_unit')
+
+    class Meta:
+        model = RecipeIngredientAmount
+        fields = ('id', 'name',
+                  'measurement_unit',
+                  'amount',)
+
+
 class RecipeSerializer(serializers.ModelSerializer):
+    ingredient = serializers.SerializerMethodField()
+    tag = TagSerializer(many=True)
+
+    @staticmethod
+    def get_ingredient(obj):
+        ingredient = RecipeIngredientAmount.objects.filter(recipe=obj)
+        return IngredientInRecipeSerializer(ingredient, many=True).data
+
     class Meta:
         model = Recipe
         fields = ('author', 'name', 'image',
