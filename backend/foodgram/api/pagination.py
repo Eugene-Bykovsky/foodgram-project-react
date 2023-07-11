@@ -7,3 +7,4 @@ class CustomRecipesPagination(PageNumberPagination):
 
 class CustomUsersPagination(PageNumberPagination):
     page_size_query_param = 'limit'
+    page_size = 6
