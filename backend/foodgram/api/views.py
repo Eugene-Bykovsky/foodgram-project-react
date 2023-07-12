@@ -1,14 +1,17 @@
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, status
 from djoser.views import UserViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.db.models import Sum
 
-from recipes.models import Ingredient, Tag, Recipe
+from recipes.models import Ingredient, Tag, Recipe, Favorite, ShoppingCart, RecipeIngredientAmount
 from .pagination import CustomUsersPagination
 from .serializers import (IngredientSerializer, TagSerializer, UsersSerializer, RecipeSerializer,
-                          SubscribeAuthorSerializer, SetPasswordSerializer, SubscriptionsSerializer)
-from .permissions import IsAdminOrReadOnly
+                          SubscribeSerializer, SetPasswordSerializer, SubscriptionsSerializer, FavoriteSerializer,
+                          ShoppingCartSerializer)
+from .permissions import IsAdminOrReadOnly, IsAdminOrAuthor
 from users.models import User, Subscription
 
 
@@ -44,7 +47,7 @@ class UsersViewSet(UserViewSet):
             if self.request.user == author:
                 return Response({'detail': 'Невозмодно подписаться на самого себя'},
                                 status=status.HTTP_400_BAD_REQUEST)
-            serializer = SubscribeAuthorSerializer(author, data=request.data, context={"request": request})
+            serializer = SubscribeSerializer(author, data=request.data, context={"request": request})
             serializer.is_valid(raise_exception=True)
             Subscription.objects.create(user=request.user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -64,3 +67,42 @@ class UsersViewSet(UserViewSet):
 class RecipeViewSet(UserViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+    permission_classes = (IsAdminOrAuthor,)
+
+    @action(detail=True, methods=['post', 'delete'], permission_classes=(permissions.IsAuthenticated,))
+    def favorite(self, request, **kwargs):
+        recipe = get_object_or_404(Recipe, id=kwargs['id'])
+        if request.method == 'POST':
+            Favorite.objects.create(user=request.user, recipe=recipe)
+            serializer = FavoriteSerializer(recipe)
+            return Response({'detail': 'Рецепт успешно добавлен в избранное!', 'data': serializer.data},
+                            status=status.HTTP_201_CREATED)
+        get_object_or_404(Favorite, user=request.user, recipe=recipe).delete()
+        return Response({'detail': 'Рецепт успешно удален из избраного'}, status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=['post', 'delete'], permission_classes=[permissions.IsAuthenticated])
+    def shopping_cart(self, request, **kwargs):
+        recipe = get_object_or_404(Recipe, id=kwargs['id'])
+        if request.method == 'POST':
+            ShoppingCart.objects.create(user=request.user, recipe=recipe)
+            serializer = ShoppingCartSerializer(recipe)
+            return Response({'detail': 'Рецепт успешно добавлен в список покупок!', 'data': serializer.data},
+                            status=status.HTTP_201_CREATED)
+        get_object_or_404(ShoppingCart, user=request.user, recipe=recipe).delete()
+        return Response({'detail': 'Рецепт успешно удален из списка покупок'}, status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=['get'])
+    def download_shopping_cart(self, request):
+        user = request.user
+        ingredients = RecipeIngredientAmount.objects.filter(
+            recipe__in_shopping_carts__user=user).values(
+            'ingredient__name',
+            'ingredient__measurement_unit').annotate(amount=Sum('amount'))
+        data = ingredients.values_list('ingredient__name',
+                                       'ingredient__measurement_unit',
+                                       'amount')
+        shopping_cart = 'Список покупок:\n'
+        for name, measure, amount in data:
+            shopping_cart += f'- {name} в количестве: {amount} {measure},\n'
+        response = HttpResponse(shopping_cart, content_type='text/plain')
+        return response

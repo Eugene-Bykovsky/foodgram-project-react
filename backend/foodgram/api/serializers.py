@@ -80,6 +80,18 @@ class RecipeSerializer(serializers.ModelSerializer):
                   'is_favorited', 'is_in_shopping_cart',)
 
 
+class FavoriteSerializer(serializers.ModelSerializer):
+    """[POST, DEL]Сериализатор для Избранного (добавление и удаление рецептов) """
+
+    class Meta:
+        model = Recipe
+        fields = 'id', 'name', 'image', 'cooking_time'
+
+
+class ShoppingCartSerializer(FavoriteSerializer):
+    """[POST, DEL]Сериализатор для Списка покупок (добавление и удаление рецептов) """
+
+
 # USERS
 class CreateUserSerializer(UserCreateSerializer):
     """Сериализатор для создания пользователей(наследуется от djoser)"""
@@ -147,7 +159,7 @@ class SubscriptionsSerializer(UsersSerializer):
         return obj.recipes.count()
 
 
-class SubscribeAuthorSerializer(serializers.ModelSerializer):
+class SubscribeSerializer(serializers.ModelSerializer):
     """[POST, DELETE] Сериализатор для подписки и отписки(кастомный)."""
     email = serializers.ReadOnlyField()
     username = serializers.ReadOnlyField()
