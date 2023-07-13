@@ -1,12 +1,12 @@
 import base64
 
-from rest_framework import serializers
-from djoser.serializers import UserSerializer, UserCreateSerializer
-from rest_framework.fields import SerializerMethodField, ReadOnlyField
 from django.core.files.base import ContentFile
-
-from recipes.models import Ingredient, Tag, Recipe, RecipeIngredientAmount, ShoppingCart, Favorite
-from users.models import User, Subscription
+from djoser.serializers import UserCreateSerializer, UserSerializer
+from recipes.models import (Favorite, Ingredient, Recipe,
+                            RecipeIngredientAmount, ShoppingCart, Tag)
+from rest_framework import serializers
+from rest_framework.fields import ReadOnlyField, SerializerMethodField
+from users.models import Subscription, User
 
 
 # RECIPES
@@ -76,12 +76,13 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('tags', 'author', 'name', 'image', 'description', 'ingredients', 'cooking_time', 'pub_date',
+        fields = ('tags', 'author', 'name', 'image', 'description',
+                  'ingredients', 'cooking_time', 'pub_date',
                   'is_favorited', 'is_in_shopping_cart',)
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
-    """[POST, DEL]Сериализатор для Избранного (добавление и удаление рецептов) """
+    """[POST, DEL]Сериализатор для Избранного (добавление и удаление рец.) """
 
     class Meta:
         model = Recipe
@@ -89,7 +90,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
 
 class ShoppingCartSerializer(FavoriteSerializer):
-    """[POST, DEL]Сериализатор для Списка покупок (добавление и удаление рецептов) """
+    """[POST, DEL]Сериализатор для Списка покупок (добавление и удаление) """
 
 
 # USERS
@@ -98,7 +99,8 @@ class CreateUserSerializer(UserCreateSerializer):
 
     class Meta:
         model = User
-        fields = 'id', 'email', 'username', 'first_name', 'last_name', 'password'
+        fields = ('id', 'email', 'username', 'first_name', 'last_name',
+                  'password')
 
 
 class UsersSerializer(UserSerializer):
@@ -107,11 +109,14 @@ class UsersSerializer(UserSerializer):
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
-        return user.is_authenticated and Subscription.objects.filter(user=user, author=obj).exists()
+        return (user.is_authenticated
+                and Subscription.objects.filter(user=user,
+                                                author=obj).exists())
 
     class Meta:
         model = User
-        fields = 'id', 'email', 'username', 'first_name', 'last_name', 'is_subscribed'
+        fields = ('id', 'email', 'username', 'first_name', 'last_name',
+                  'is_subscribed')
 
 
 class SetPasswordSerializer(serializers.ModelSerializer):
@@ -124,7 +129,8 @@ class SetPasswordSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {'current_password': 'Неверный пароль.'}
             )
-        if validated_data['current_password'] == validated_data['new_password']:
+        if (validated_data['current_password']
+                == validated_data['new_password']):
             raise serializers.ValidationError(
                 {'new_password': 'Новый пароль не должен совпадать с текущим.'}
             )
@@ -135,7 +141,8 @@ class SetPasswordSerializer(serializers.ModelSerializer):
 
 # SUBSCRIPTIONS #
 class SubscriptionsSerializer(UsersSerializer):
-    """[GET] Сериализатор возвращает пользователей, на которых подписан текущий пользователь.
+    """[GET] Сериализатор возвращает пользователей,
+    на которых подписан текущий пользователь.
     В выдачу добавляются рецепты.(наследуется от UsersSerializer)"""
     is_subscribed = serializers.SerializerMethodField()
     recipes_count = SerializerMethodField()
@@ -143,7 +150,8 @@ class SubscriptionsSerializer(UsersSerializer):
 
     class Meta:
         model = User
-        fields = 'email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed', 'recipes', 'recipes_count'
+        fields = ('email', 'id', 'username', 'first_name', 'last_name',
+                  'is_subscribed', 'recipes', 'recipes_count')
 
     def get_recipes(self, obj):
         request = self.context.get('request')
@@ -171,11 +179,14 @@ class SubscribeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = 'email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed', 'recipes', 'recipes_count'
+        fields = ('email', 'id', 'username', 'first_name', 'last_name',
+                  'is_subscribed', 'recipes', 'recipes_count')
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
-        return user.is_authenticated and Subscription.objects.filter(user=user, author=obj).exists()
+        return (user.is_authenticated
+                and Subscription.objects.filter(user=user,
+                                                author=obj).exists())
 
     @staticmethod
     def get_recipes_count(obj):
