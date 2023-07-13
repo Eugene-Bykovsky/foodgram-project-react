@@ -64,6 +64,8 @@ class UsersViewSet(UserViewSet):
                               author=author).delete()
             return Response({'detail': 'Успешная отписка'},
                             status=status.HTTP_204_NO_CONTENT)
+        return Response({'detail': 'Неверный метод запроса'},
+                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(detail=False, methods=['post'],
             permission_classes=(permissions.IsAuthenticated,))
@@ -111,9 +113,8 @@ class RecipeViewSet(UserViewSet):
 
     @action(detail=False, methods=['get'])
     def download_shopping_cart(self, request):
-        user = request.user
         ingredients = RecipeIngredientAmount.objects.filter(
-            recipe__in_shopping_carts__user=user).values(
+            recipe__in_shopping_carts__user=request.user).values(
             'ingredient__name',
             'ingredient__measurement_unit').annotate(amount=Sum('amount'))
         data = ingredients.values_list('ingredient__name',
