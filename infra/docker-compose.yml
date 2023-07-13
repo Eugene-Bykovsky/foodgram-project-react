@@ -8,14 +8,6 @@ services:
     env_file:
       - ./.env
 
-  frontend:
-    image: evgeniibykovskii/foodgram_frontend:latest
-    volumes:
-      - ../frontend/:/app/result_build/
-    depends_on:
-      - backend
-    container_name: foodgram_frontend
-
   backend:
     image: evgeniibykovskii/foodgram_backend:latest
     restart: always
@@ -28,8 +20,16 @@ services:
       - ./.env
     container_name: foodgram_backend
 
+  frontend:
+    image: evgeniibykovskii/foodgram_frontend:latest
+    volumes:
+      - ../frontend/:/app/result_build/
+    depends_on:
+      - db
+    container_name: foodgram_frontend
+
   nginx:
-    image: nginx:1.19.3
+    image: nginx:1.21.3-alpine
     ports:
       - "80:80"
     volumes:
