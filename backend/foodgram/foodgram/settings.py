@@ -133,6 +133,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.User'
 
 REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
@@ -147,7 +150,7 @@ DJOSER = {
         'current_user': 'api.serializers.UsersSerializer'
     },
     'PERMISSIONS': {
-        'user': ('rest_framework.permissions.AllowAny',),
-        "user_list": ('rest_framework.permissions.AllowAny',),
+        "user": ("api.permissions.IsAdminOrAuthor",),
+        "user_list": ("api.permissions.IsAdminOrAuthor",),
     },
 }
