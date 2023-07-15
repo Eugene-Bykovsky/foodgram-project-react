@@ -150,7 +150,7 @@ DJOSER = {
         'current_user': 'api.serializers.UsersSerializer'
     },
     'PERMISSIONS': {
-        "user": ("api.permissions.IsAdminOrAuthor",),
+        "user": ("api.permissions.IsAdminOrAuthorOrReadOnly",),
         "user_list": ("rest_framework.permissions.IsAuthenticatedOrReadOnly",),
     },
 }
