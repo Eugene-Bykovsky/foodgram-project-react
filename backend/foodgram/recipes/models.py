@@ -65,7 +65,7 @@ class Recipe(models.Model):
         null=True,
         verbose_name='Изображение рецепта'
     )
-    description = models.TextField(
+    text = models.TextField(
         verbose_name='Текстовое описание'
     )
     ingredients = models.ManyToManyField(
