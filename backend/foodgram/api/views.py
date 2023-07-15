@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from users.models import Subscription, User
 
 from .pagination import CustomUsersPagination
-from .permissions import IsAdminOrAuthor, IsAdminOrReadOnly
+from .permissions import IsAdminOrAuthorOrReadOnly, IsAdminOrReadOnly
 from .serializers import (FavoriteSerializer, IngredientSerializer,
                           RecipeSerializer, SetPasswordSerializer,
                           ShoppingCartSerializer, SubscribeSerializer,
@@ -80,7 +80,7 @@ class UsersViewSet(UserViewSet):
 class RecipeViewSet(UserViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    permission_classes = (IsAdminOrAuthor,)
+    permission_classes = (IsAdminOrAuthorOrReadOnly,)
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(permissions.IsAuthenticated,))
