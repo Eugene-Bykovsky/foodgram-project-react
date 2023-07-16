@@ -68,6 +68,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     image = Base64ImageField()
     is_favorited = SerializerMethodField()
+    is_in_shopping_cart = SerializerMethodField()
 
     @staticmethod
     def get_ingredients(obj):
