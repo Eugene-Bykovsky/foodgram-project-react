@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from users.models import Subscription, User
 
 from .pagination import CustomUsersPagination
-from .permissions import IsAdminOrAuthorOrReadOnly, IsAdminOrReadOnly
+from .permissions import IsAdminOrReadOnly
 from .serializers import (FavoriteSerializer, IngredientSerializer,
                           RecipeSerializer, SetPasswordSerializer,
                           ShoppingCartSerializer, SubscribeSerializer,
