@@ -59,8 +59,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     is_in_shopping_cart = SerializerMethodField()
     cooking_time = serializers.IntegerField()
 
-    @staticmethod
-    def validate_cooking_time(value):
+    def validate_cooking_time(self, value):
         if value < 1:
             raise serializers.ValidationError(
                 'Время приготовения не может быть меньше 1 минуты')
@@ -107,8 +106,7 @@ class CreateUserSerializer(UserCreateSerializer):
     """Сериализатор для создания пользователей(наследуется от djoser)"""
     username = serializers.CharField(max_length=150)
 
-    @staticmethod
-    def validate_username(value):
+    def validate_username(self, value):
         if not re.match(r'^[\w.@+-]+$', value):
             raise serializers.ValidationError(
                 "Username should only contain letters, digits, "
@@ -118,7 +116,7 @@ class CreateUserSerializer(UserCreateSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'username', 'first_name', 'last_name',
+        fields = ('email', 'username', 'first_name', 'last_name',
                   'password')
         extra_kwargs = {'password': {'write_only': True}}
 
