@@ -109,7 +109,7 @@ class CreateUserSerializer(UserCreateSerializer):
 
     @staticmethod
     def validate_username(value):
-        if not re.match(r'^[\w.@+-]+\z', value):
+        if not re.match(r'^[\w.@+-]+$', value):
             raise serializers.ValidationError(
                 "Username should only contain letters, digits, "
                 "and @/./+/-/_ characters."
