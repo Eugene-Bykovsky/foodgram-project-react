@@ -23,7 +23,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (IsAdminOrReadOnly,)
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     # Не учитываем регистр символов
     search_fields = ('^name',)
 
@@ -85,9 +85,6 @@ class RecipeViewSet(UserViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (IsAdminOrAuthorOrReadOnly,)
-    # Указываем фильтрующий бэкенд DjangoFilterBackend
-    # Из библиотеки django-filter
-    filter_backends = (DjangoFilterBackend,)
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(permissions.IsAuthenticated,))
