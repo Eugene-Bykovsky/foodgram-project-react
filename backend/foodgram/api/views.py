@@ -84,7 +84,7 @@ class UsersViewSet(UserViewSet):
 class RecipeViewSet(UserViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    permission_classes = (IsAdminOrAuthorOrReadOnly,)
+    permission_classes = (permissions.AllowAny,)
     # Указываем фильтрующий бэкенд DjangoFilterBackend
     # Из библиотеки django-filter
     filter_backends = (DjangoFilterBackend,)
