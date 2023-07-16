@@ -2,9 +2,10 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
+from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientAmount, ShoppingCart, Tag)
-from rest_framework import permissions, status, viewsets
+from rest_framework import permissions, status, viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from users.models import Subscription, User
@@ -22,6 +23,9 @@ class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (IsAdminOrReadOnly,)
+    filter_backends = (filters.SearchFilter,)
+    # Не учитываем регистр символов
+    search_fields = ('^name',)
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -81,6 +85,9 @@ class RecipeViewSet(UserViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (IsAdminOrAuthorOrReadOnly,)
+    # Указываем фильтрующий бэкенд DjangoFilterBackend
+    # Из библиотеки django-filter
+    filter_backends = (DjangoFilterBackend,)
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(permissions.IsAuthenticated,))

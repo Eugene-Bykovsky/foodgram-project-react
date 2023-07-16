@@ -1,4 +1,5 @@
 import base64
+import re
 
 from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer, UserSerializer
@@ -56,6 +57,14 @@ class RecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
     is_favorited = SerializerMethodField()
     is_in_shopping_cart = SerializerMethodField()
+    cooking_time = serializers.IntegerField()
+
+    @staticmethod
+    def validate_cooking_time(value):
+        if value < 1:
+            raise serializers.ValidationError(
+                'Время приготовения не может быть меньше 1 минуты')
+        return value
 
     @staticmethod
     def get_ingredients(obj):
@@ -96,11 +105,21 @@ class ShoppingCartSerializer(FavoriteSerializer):
 # USERS
 class CreateUserSerializer(UserCreateSerializer):
     """Сериализатор для создания пользователей(наследуется от djoser)"""
+    username = serializers.CharField(max_length=150)
+
+    @staticmethod
+    def validate_username(value):
+        if not re.match(r'^[\w.@+-]+\z', value):
+            raise serializers.ValidationError(
+                f"Username should only contain letters, digits, "
+                f"and @/./+/-/_ characters.")
+        return value
 
     class Meta:
         model = User
         fields = ('id', 'email', 'username', 'first_name', 'last_name',
                   'password')
+        extra_kwargs = {'password': {'write_only': True}}
 
 
 class UsersSerializer(UserSerializer):
