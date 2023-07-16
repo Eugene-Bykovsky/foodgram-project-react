@@ -111,8 +111,9 @@ class CreateUserSerializer(UserCreateSerializer):
     def validate_username(value):
         if not re.match(r'^[\w.@+-]+\z', value):
             raise serializers.ValidationError(
-                f"Username should only contain letters, digits, "
-                f"and @/./+/-/_ characters.")
+                "Username should only contain letters, digits, "
+                "and @/./+/-/_ characters."
+            )
         return value
 
     class Meta:
