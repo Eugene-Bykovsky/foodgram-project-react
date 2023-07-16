@@ -61,9 +61,27 @@ class Base64ImageField(serializers.ImageField):
         return super().to_internal_value(data)
 
 
+class UsersSerializer(UserSerializer):
+    """Сериализатор для пользователей(наследуется от djoser)"""
+    is_subscribed = SerializerMethodField(read_only=True)
+
+    def get_is_subscribed(self, obj):
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return (user.is_authenticated
+                and Subscription.objects.filter(user=user,
+                                                author=obj).exists())
+
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'username', 'first_name', 'last_name',
+                  'is_subscribed')
+
+
 class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для рецептов(кастомный)"""
-    author = UserSerializer(read_only=True)
+    author = UsersSerializer(read_only=True)
     ingredients = serializers.SerializerMethodField()
     tags = TagSerializer(many=True)
     image = Base64ImageField()
@@ -147,24 +165,6 @@ class CreateUserSerializer(UserCreateSerializer):
         fields = ('email', 'username', 'first_name', 'last_name',
                   'password')
         extra_kwargs = {'password': {'write_only': True}}
-
-
-class UsersSerializer(UserSerializer):
-    """Сериализатор для пользователей(наследуется от djoser)"""
-    is_subscribed = SerializerMethodField(read_only=True)
-
-    def get_is_subscribed(self, obj):
-        user = self.context.get('request').user
-        if user.is_anonymous:
-            return False
-        return (user.is_authenticated
-                and Subscription.objects.filter(user=user,
-                                                author=obj).exists())
-
-    class Meta:
-        model = User
-        fields = ('id', 'email', 'username', 'first_name', 'last_name',
-                  'is_subscribed')
 
 
 class SetPasswordSerializer(serializers.ModelSerializer):
