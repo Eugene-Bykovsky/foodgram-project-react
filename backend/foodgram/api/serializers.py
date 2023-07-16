@@ -52,6 +52,7 @@ class Base64ImageField(serializers.ImageField):
 
 class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для рецептов(кастомный)"""
+    author = UserSerializer(read_only=True)
     ingredients = serializers.SerializerMethodField()
     tags = TagSerializer(many=True)
     image = Base64ImageField()
