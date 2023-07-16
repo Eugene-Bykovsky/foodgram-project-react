@@ -13,10 +13,10 @@ from users.models import Subscription, User
 from .pagination import CustomUsersPagination
 from .permissions import IsAdminOrAuthorOrReadOnly, IsAdminOrReadOnly
 from .serializers import (FavoriteSerializer, IngredientSerializer,
-                          RecipeSerializer, SetPasswordSerializer,
-                          ShoppingCartSerializer, SubscribeSerializer,
-                          SubscriptionsSerializer, TagSerializer,
-                          UsersSerializer, RecipeCreateSerializer)
+                          RecipeCreateSerializer, RecipeSerializer,
+                          SetPasswordSerializer, ShoppingCartSerializer,
+                          SubscribeSerializer, SubscriptionsSerializer,
+                          TagSerializer, UsersSerializer)
 
 
 class IngredientViewSet(viewsets.ModelViewSet):

@@ -3,13 +3,12 @@ import re
 
 from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from rest_framework.relations import PrimaryKeyRelatedField
-
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientAmount, ShoppingCart, Tag)
 from rest_framework import serializers
-from rest_framework.fields import (ReadOnlyField, SerializerMethodField,
-                                   CharField, IntegerField)
+from rest_framework.fields import (CharField, IntegerField, ReadOnlyField,
+                                   SerializerMethodField)
+from rest_framework.relations import PrimaryKeyRelatedField
 from users.models import Subscription, User
 
 
