@@ -3,10 +3,13 @@ import re
 
 from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from rest_framework.relations import PrimaryKeyRelatedField
+
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientAmount, ShoppingCart, Tag)
 from rest_framework import serializers
-from rest_framework.fields import ReadOnlyField, SerializerMethodField
+from rest_framework.fields import (ReadOnlyField, SerializerMethodField,
+                                   CharField, IntegerField)
 from users.models import Subscription, User
 
 
@@ -17,6 +20,15 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = 'id', 'name', 'measurement_unit'
+
+
+class IngredientCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор для добавления ингредиентов при создании рецепта."""
+    id = IntegerField()
+
+    class Meta:
+        model = RecipeIngredientAmount
+        fields = ('id', 'amount')
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -57,14 +69,6 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     image = Base64ImageField()
     is_favorited = SerializerMethodField()
-    is_in_shopping_cart = SerializerMethodField()
-    cooking_time = serializers.IntegerField()
-
-    def validate_cooking_time(self, value):
-        if value < 1:
-            raise serializers.ValidationError(
-                'Время приготовения не может быть меньше 1 минуты')
-        return value
 
     @staticmethod
     def get_ingredients(obj):
@@ -88,6 +92,29 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'tags', 'author', 'name', 'image', 'text',
                   'ingredients', 'cooking_time',
                   'is_favorited', 'is_in_shopping_cart',)
+
+
+class RecipeCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания рецептов."""
+    ingredients = IngredientCreateSerializer(many=True)
+    tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(),
+                                  many=True)
+    image = Base64ImageField()
+    name = CharField(max_length=200)
+    cooking_time = IntegerField()
+    author = UserSerializer(read_only=True)
+
+    def validate_cooking_time(self, value):
+        if value < 1:
+            raise serializers.ValidationError(
+                'Время приготовения не может быть меньше 1 минуты')
+        return value
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'ingredients', 'tags',
+                  'image', 'name', 'text',
+                  'cooking_time', 'author')
 
 
 class FavoriteSerializer(serializers.ModelSerializer):

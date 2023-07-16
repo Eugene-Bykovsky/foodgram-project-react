@@ -16,7 +16,7 @@ from .serializers import (FavoriteSerializer, IngredientSerializer,
                           RecipeSerializer, SetPasswordSerializer,
                           ShoppingCartSerializer, SubscribeSerializer,
                           SubscriptionsSerializer, TagSerializer,
-                          UsersSerializer)
+                          UsersSerializer, RecipeCreateSerializer)
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
@@ -85,6 +85,17 @@ class RecipeViewSet(UserViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     permission_classes = (IsAdminOrAuthorOrReadOnly,)
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return RecipeSerializer
+        return RecipeCreateSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(author=self.request.user)
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(permissions.IsAuthenticated,))
