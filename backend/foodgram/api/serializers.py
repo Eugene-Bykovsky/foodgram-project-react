@@ -135,12 +135,25 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                   'cooking_time', 'author')
 
 
+class RecipeFavoriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+
+
 class FavoriteSerializer(serializers.ModelSerializer):
     """[POST, DEL]Сериализатор для Избранного (добавление и удаление рец.) """
 
     class Meta:
         model = Recipe
         fields = 'id', 'name', 'image', 'cooking_time'
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        return RecipeFavoriteSerializer(
+            instance.recipe,
+            context={'request': request}
+        ).data
 
 
 class ShoppingCartSerializer(FavoriteSerializer):
