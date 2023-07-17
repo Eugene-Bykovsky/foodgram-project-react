@@ -66,12 +66,10 @@ class UsersSerializer(UserSerializer):
     is_subscribed = SerializerMethodField(read_only=True)
 
     def get_is_subscribed(self, obj):
-        user = self.context.get('request').user
-        if user.is_anonymous:
-            return False
-        return (user.is_authenticated
-                and Subscription.objects.filter(user=user,
-                                                author=obj).exists())
+        return (self.context.get('request').user.is_authenticated
+                and Subscription.objects.filter(
+                    user=self.context.get('request').user,
+                    author=obj).exists())
 
     class Meta:
         model = User
@@ -244,12 +242,10 @@ class SubscribeSerializer(serializers.ModelSerializer):
                   'is_subscribed', 'recipes', 'recipes_count')
 
     def get_is_subscribed(self, obj):
-        user = self.context.get('request').user
-        if user.is_anonymous:
-            return False
-        return (user.is_authenticated
-                and Subscription.objects.filter(user=user,
-                                                author=obj).exists())
+        return (self.context.get('request').user.is_authenticated
+                and Subscription.objects.filter(
+                    user=self.context.get('request').user,
+                    author=obj).exists())
 
     @staticmethod
     def get_recipes_count(obj):
