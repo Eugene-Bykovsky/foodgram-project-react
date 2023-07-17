@@ -22,7 +22,7 @@ from .serializers import (FavoriteSerializer, IngredientSerializer,
 class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (IngredientFilter,)
+    filter_backends = (IngredientFilter, )
     search_fields = ('^name',)
 
 
