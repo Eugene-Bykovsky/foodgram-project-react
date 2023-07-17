@@ -1,6 +1,7 @@
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientAmount, ShoppingCart, Tag)
@@ -9,7 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from users.models import Subscription, User
 
-from .filters import IngredientFilter
+from .filters import IngredientFilter, RecipesFilter
 from .pagination import CustomUsersPagination
 from .permissions import IsAdminOrAuthorOrReadOnly, IsAdminOrReadOnly
 from .serializers import (FavoriteSerializer, IngredientSerializer,
@@ -84,6 +85,8 @@ class RecipeViewSet(UserViewSet):
     serializer_class = RecipeSerializer
     permission_classes = (IsAdminOrAuthorOrReadOnly,)
     pagination_class = CustomUsersPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = RecipesFilter
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PATCH', 'DELETE'):
