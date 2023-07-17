@@ -42,11 +42,10 @@ class UsersViewSet(UserViewSet):
     @action(detail=False, methods=['get'],
             permission_classes=(permissions.IsAuthenticated,))
     def subscriptions(self, request):
-        queryset = User.objects.filter(subscriber__user=self.request.user)
-        pages = self.paginate_queryset(queryset)
-        serializer = SubscriptionsSerializer(pages, many=True,
+        queryset = User.objects.filter()
+        serializer = SubscriptionsSerializer(queryset, many=True,
                                              context={'request': request})
-        return self.get_paginated_response(serializer.data)
+        return serializer.data
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(permissions.IsAuthenticated,))
