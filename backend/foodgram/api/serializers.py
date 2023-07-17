@@ -203,7 +203,6 @@ class SubscriptionsSerializer(UsersSerializer):
     """[GET] Сериализатор возвращает пользователей,
     на которых подписан текущий пользователь.
     В выдачу добавляются рецепты.(наследуется от UsersSerializer)"""
-    is_subscribed = serializers.SerializerMethodField()
     recipes_count = SerializerMethodField()
     recipes = SerializerMethodField()
 
@@ -221,7 +220,8 @@ class SubscriptionsSerializer(UsersSerializer):
         serializer = RecipeSerializer(recipes, many=True, read_only=True)
         return serializer.data
 
-    def get_recipes_count(self, obj):
+    @staticmethod
+    def get_recipes_count(obj):
         return obj.recipes.count()
 
 
