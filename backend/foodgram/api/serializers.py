@@ -6,8 +6,7 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientAmount, ShoppingCart, Tag)
 from rest_framework import serializers
-from rest_framework.fields import (CharField, IntegerField, ReadOnlyField,
-                                   SerializerMethodField)
+from rest_framework.fields import (CharField, IntegerField, ReadOnlyField)
 from rest_framework.relations import PrimaryKeyRelatedField
 from users.models import Subscription, User
 
@@ -63,7 +62,7 @@ class Base64ImageField(serializers.ImageField):
 
 class UsersSerializer(UserSerializer):
     """Сериализатор для пользователей(наследуется от djoser)"""
-    is_subscribed = SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
 
     def get_is_subscribed(self, obj):
         return (self.context.get('request').user.is_authenticated
@@ -83,8 +82,8 @@ class RecipeSerializer(serializers.ModelSerializer):
     ingredients = serializers.SerializerMethodField()
     tags = TagSerializer(many=True)
     image = Base64ImageField()
-    is_favorited = SerializerMethodField()
-    is_in_shopping_cart = SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     @staticmethod
     def get_ingredients(obj):
@@ -203,8 +202,15 @@ class SubscriptionsSerializer(UsersSerializer):
     """[GET] Сериализатор возвращает пользователей,
     на которых подписан текущий пользователь.
     В выдачу добавляются рецепты.(наследуется от UsersSerializer)"""
-    recipes_count = SerializerMethodField()
-    recipes = SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
+
+    def get_is_subscribed(self, obj):
+        return (self.context.get('request').user.is_authenticated
+                and Subscription.objects.filter(
+                    user=self.context.get('request').user,
+                    author=obj).exists())
 
     class Meta:
         model = User
