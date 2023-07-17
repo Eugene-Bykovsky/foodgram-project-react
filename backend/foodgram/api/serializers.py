@@ -131,6 +131,41 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                   'image', 'name', 'text',
                   'cooking_time', 'author')
 
+    @staticmethod
+    def create_ingredients(recipe, ingredients):
+        result = []
+        for ingredient in ingredients:
+            result.append(
+                RecipeIngredientAmount(
+                    ingredient=ingredient['id'],
+                    amount=ingredient['amount'],
+                    recipe=recipe,
+                )
+            )
+        RecipeIngredientAmount.objects.bulk_create(result)
+
+    def create(self, validated_data):
+        request = self.context.get('request', None)
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
+        recipe = Recipe.objects.create(author=request.user, **validated_data)
+        recipe.tags.set(tags)
+        self.create_ingredients(recipe, ingredients)
+        return recipe
+
+    def update(self, recipe, validated_data):
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        RecipeIngredientAmount.objects.filter(recipe=recipe).delete()
+        self.create_ingredients(recipe, ingredients)
+        recipe.tags.set(tags)
+        return super().update(recipe, validated_data)
+
+    def to_representation(self, instance):
+        return RecipeSerializer(instance, context={
+            'request': self.context.get('request')
+        }).data
+
 
 class RecipeFavoriteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -204,7 +239,6 @@ class SubscriptionsSerializer(UsersSerializer):
     В выдачу добавляются рецепты.(наследуется от UsersSerializer)"""
     recipes_count = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
-    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -220,8 +254,7 @@ class SubscriptionsSerializer(UsersSerializer):
         serializer = RecipeSerializer(recipes, many=True, read_only=True)
         return serializer.data
 
-    @staticmethod
-    def get_recipes_count(obj):
+    def get_recipes_count(self, obj):
         return obj.recipes.count()
 
 
