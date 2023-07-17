@@ -90,9 +90,9 @@ class RecipeViewSet(UserViewSet):
     pagination_class = CustomUsersPagination
 
     def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
-            return RecipeSerializer
-        return RecipeCreateSerializer
+        if self.request.method in ('POST', 'PATCH', 'DELETE'):
+            return RecipeCreateSerializer
+        return RecipeSerializer
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(permissions.IsAuthenticated,))

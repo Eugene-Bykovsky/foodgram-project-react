@@ -3,6 +3,8 @@ import re
 
 from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from rest_framework.generics import get_object_or_404
+
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientAmount, ShoppingCart, Tag)
 from rest_framework import serializers
@@ -133,16 +135,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def create_ingredients(recipe, ingredients):
-        result = []
         for ingredient in ingredients:
-            result.append(
-                RecipeIngredientAmount(
-                    ingredient=ingredient['id'],
-                    amount=ingredient['amount'],
-                    recipe=recipe,
-                )
-            )
-        RecipeIngredientAmount.objects.bulk_create(result)
+            RecipeIngredientAmount.objects.update_or_create(
+                recipe=recipe,
+                ingredients=get_object_or_404(
+                    Ingredient, id=ingredient['id']),
+                amount=ingredient['amount'])
 
     def create(self, validated_data):
         request = self.context.get('request', None)
