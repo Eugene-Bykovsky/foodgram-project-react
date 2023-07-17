@@ -7,7 +7,6 @@ from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientAmount, ShoppingCart, Tag)
 from rest_framework import serializers
 from rest_framework.fields import CharField, IntegerField, ReadOnlyField
-from rest_framework.generics import get_object_or_404
 from rest_framework.relations import PrimaryKeyRelatedField
 from users.models import Subscription, User
 
@@ -118,7 +117,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
     name = CharField(max_length=200)
     cooking_time = IntegerField()
-    author = UserSerializer(read_only=True)
+    author = UserCreateSerializer(read_only=True)
 
     def validate_cooking_time(self, value):
         if value < 1:
@@ -131,15 +130,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         fields = ('id', 'ingredients', 'tags',
                   'image', 'name', 'text',
                   'cooking_time', 'author')
-
-    @staticmethod
-    def create_ingredients(recipe, ingredients):
-        for ingredient in ingredients:
-            RecipeIngredientAmount.objects.update_or_create(
-                recipe=recipe,
-                ingredients=get_object_or_404(
-                    Ingredient, id=ingredient['id']),
-                amount=ingredient['amount'])
 
     def create(self, validated_data):
         request = self.context.get('request', None)

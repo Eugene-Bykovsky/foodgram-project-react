@@ -1,15 +1,15 @@
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientAmount, ShoppingCart, Tag)
-from rest_framework import filters, permissions, status, viewsets
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from users.models import Subscription, User
 
+from .filters import IngredientFilter
 from .pagination import CustomUsersPagination
 from .permissions import IsAdminOrAuthorOrReadOnly, IsAdminOrReadOnly
 from .serializers import (FavoriteSerializer, IngredientSerializer,
@@ -22,9 +22,7 @@ from .serializers import (FavoriteSerializer, IngredientSerializer,
 class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    permission_classes = (IsAdminOrReadOnly,)
-    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
-    # Не учитываем регистр символов
+    filter_backends = (IngredientFilter,)
     search_fields = ('^name',)
 
 
@@ -38,13 +36,11 @@ class UsersViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
     pagination_class = CustomUsersPagination
-    permission_classes = (permissions.AllowAny,)
 
     @action(detail=False, methods=['get'],
             permission_classes=(permissions.IsAuthenticated,))
     def subscriptions(self, request):
         queryset = User.objects.filter(subscriber__user=self.request.user)
-        print(self.request.user)
         pages = self.paginate_queryset(queryset)
         serializer = SubscriptionsSerializer(pages, many=True,
                                              context={'request': request})
@@ -104,7 +100,8 @@ class RecipeViewSet(UserViewSet):
             return Response({'detail': 'Рецепт успешно добавлен в избранное!',
                              'data': serializer.data},
                             status=status.HTTP_201_CREATED)
-        get_object_or_404(Favorite, user=request.user, recipe=recipe).delete()
+        recipe = get_object_or_404(Favorite, user=request.user, recipe=recipe)
+        recipe.delete()
         return Response({'detail': 'Рецепт успешно удален из избраного'},
                         status=status.HTTP_204_NO_CONTENT)
 
