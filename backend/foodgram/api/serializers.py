@@ -63,7 +63,7 @@ class Base64ImageField(serializers.ImageField):
 
 class UsersSerializer(UserSerializer):
     """Сериализатор для пользователей(наследуется от djoser)"""
-    is_subscribed = SerializerMethodField(read_only=True)
+    is_subscribed = SerializerMethodField()
 
     def get_is_subscribed(self, obj):
         return (self.context.get('request').user.is_authenticated
