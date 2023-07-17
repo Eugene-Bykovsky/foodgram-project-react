@@ -2,4 +2,4 @@ from rest_framework.filters import SearchFilter
 
 
 class IngredientFilter(SearchFilter):
-    search_fields = ('^name',)
+    search_param = 'name'
