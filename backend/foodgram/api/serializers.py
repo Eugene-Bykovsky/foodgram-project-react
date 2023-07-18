@@ -1,7 +1,6 @@
 import base64
 import re
 
-from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (Favorite, Ingredient, Recipe,
@@ -10,8 +9,6 @@ from rest_framework import serializers
 from rest_framework.fields import CharField, IntegerField, ReadOnlyField
 from rest_framework.relations import PrimaryKeyRelatedField
 from users.models import Subscription, User
-
-# User = get_user_model()
 
 
 # RECIPES
