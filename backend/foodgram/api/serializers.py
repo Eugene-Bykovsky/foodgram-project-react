@@ -9,9 +9,9 @@ from recipes.models import (Favorite, Ingredient, Recipe,
 from rest_framework import serializers
 from rest_framework.fields import CharField, IntegerField, ReadOnlyField
 from rest_framework.relations import PrimaryKeyRelatedField
-from users.models import Subscription
+from users.models import Subscription, User
 
-User = get_user_model()
+# User = get_user_model()
 
 
 # RECIPES
