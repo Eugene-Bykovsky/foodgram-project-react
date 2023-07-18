@@ -97,7 +97,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                 and not self.context.get('request').user.is_anonymous):
             return Favorite.objects.filter(
                 user=self.context.get('request').user,
-                author=obj).exists()
+                author=obj.user).exists()
         return False
 
     def get_is_in_shopping_cart(self, obj):
@@ -105,7 +105,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                 and not self.context.get('request').user.is_anonymous):
             return ShoppingCart.objects.filter(
                 user=self.context.get('request').user,
-                author=obj).exists()
+                author=obj.user).exists()
         return False
 
     class Meta:
@@ -130,7 +130,7 @@ class CreateUserSerializer(UserCreateSerializer):
     class Meta:
         model = User
         fields = ('email', 'username', 'first_name', 'last_name',
-                  'password')
+                  'password', 'id')
         extra_kwargs = {'password': {'write_only': True}}
 
 
