@@ -1,6 +1,7 @@
 import base64
 import re
 
+from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (Favorite, Ingredient, Recipe,
@@ -8,7 +9,9 @@ from recipes.models import (Favorite, Ingredient, Recipe,
 from rest_framework import serializers
 from rest_framework.fields import CharField, IntegerField, ReadOnlyField
 from rest_framework.relations import PrimaryKeyRelatedField
-from users.models import Subscription, User
+from users.models import Subscription
+
+User = get_user_model()
 
 
 # RECIPES
@@ -62,13 +65,14 @@ class Base64ImageField(serializers.ImageField):
 
 class UsersSerializer(UserSerializer):
     """Сериализатор для пользователей(наследуется от djoser)"""
-    is_subscribed = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField(read_only=True)
 
     def get_is_subscribed(self, obj):
-        return (self.context.get('request').user.is_authenticated
-                and Subscription.objects.filter(
-                    user=self.context.get('request').user,
-                    author=obj).exists())
+        if self.context.get('request').user.is_anonymous:
+            return False
+        return Subscription.objects.filter(
+            user=self.context.get('request').user,
+            author=obj).exists()
 
     class Meta:
         model = User
@@ -261,10 +265,11 @@ class SubscribeSerializer(serializers.ModelSerializer):
                   'is_subscribed', 'recipes', 'recipes_count')
 
     def get_is_subscribed(self, obj):
-        return (self.context.get('request').user.is_authenticated
-                and Subscription.objects.filter(
-                    user=self.context.get('request').user,
-                    author=obj).exists())
+        if self.context.get('request').user.is_anonymous:
+            return False
+        return Subscription.objects.filter(
+            user=self.context.get('request').user,
+            author=obj).exists()
 
     @staticmethod
     def get_recipes_count(obj):
