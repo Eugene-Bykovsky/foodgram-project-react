@@ -22,7 +22,8 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class IngredientCreateSerializer(serializers.ModelSerializer):
     """Сериализатор для добавления ингредиентов при создании рецепта."""
-    id = IntegerField()
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField()
 
     class Meta:
         model = RecipeIngredientAmount
@@ -79,7 +80,7 @@ class UsersSerializer(UserSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для рецептов(кастомный)"""
-    author = UsersSerializer(many=False)
+    author = UsersSerializer(read_only=True)
     ingredients = serializers.SerializerMethodField()
     tags = TagSerializer(many=True)
     image = Base64ImageField()
@@ -111,7 +112,26 @@ class RecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('id', 'tags', 'author', 'name', 'image', 'text',
                   'ingredients', 'cooking_time',
-                  'is_favorited', 'is_in_shopping_cart',)
+                  'is_favorited', 'is_in_shopping_cart')
+
+
+class CreateUserSerializer(UserCreateSerializer):
+    """Сериализатор для создания пользователей(наследуется от djoser)"""
+    username = serializers.CharField(max_length=150)
+
+    def validate_username(self, value):
+        if not re.match(r'^[\w.@+-]+$', value):
+            raise serializers.ValidationError(
+                "Username should only contain letters, digits, "
+                "and @/./+/-/_ characters."
+            )
+        return value
+
+    class Meta:
+        model = User
+        fields = ('email', 'username', 'first_name', 'last_name',
+                  'password')
+        extra_kwargs = {'password': {'write_only': True}}
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
@@ -122,9 +142,10 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
     name = CharField(max_length=200)
     cooking_time = IntegerField()
-    author = UserCreateSerializer(read_only=True)
+    author = CreateUserSerializer(read_only=True)
 
-    def validate_cooking_time(self, value):
+    @staticmethod
+    def validate_cooking_time(value):
         if value < 1:
             raise serializers.ValidationError(
                 'Время приготовения не может быть меньше 1 минуты')
@@ -136,27 +157,43 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                   'image', 'name', 'text',
                   'cooking_time', 'author')
 
+    @staticmethod
+    def save_ingredients(recipe, ingredients):
+        result = []
+        for ingredient in ingredients:
+            current_ingredient = ingredient['ingredient']['id']
+            current_amount = ingredient['amount']
+            result.append(
+                RecipeIngredientAmount(
+                    recipe=recipe,
+                    ingredient=current_ingredient,
+                    amount=current_amount))
+        RecipeIngredientAmount.objects.bulk_create(result)
+
     def create(self, validated_data):
-        request = self.context.get('request', None)
+        author = self.context['request'].user
+        ingredients = validated_data.pop('recipe_ingredients')
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(author=request.user, **validated_data)
-        recipe.tags.set(tags)
-        self.create_ingredients(recipe, ingredients)
+        recipe = Recipe.objects.create(**validated_data, author=author)
+        recipe.tags.add(*tags)
+        self.save_ingredients(recipe, ingredients)
         return recipe
 
-    def update(self, recipe, validated_data):
-        ingredients = validated_data.pop('ingredients')
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get('text', instance.text)
+        instance.image = validated_data.get('image', instance.image)
+        instance.cooking_time = validated_data.get(
+            'cooking_time', instance.cooking_time)
+        ingredients = validated_data.pop('recipe_ingredients')
         tags = validated_data.pop('tags')
-        RecipeIngredientAmount.objects.filter(recipe=recipe).delete()
-        self.create_ingredients(recipe, ingredients)
-        recipe.tags.set(tags)
-        return super().update(recipe, validated_data)
-
-    def to_representation(self, instance):
-        return RecipeSerializer(instance, context={
-            'request': self.context.get('request')
-        }).data
+        instance.tags.clear()
+        instance.tags.add(*tags)
+        instance.ingredients.clear()
+        recipe = instance
+        self.save_ingredients(recipe, ingredients)
+        instance.save()
+        return instance
 
 
 class RecipeFavoriteSerializer(serializers.ModelSerializer):
@@ -185,24 +222,6 @@ class ShoppingCartSerializer(FavoriteSerializer):
 
 
 # USERS
-class CreateUserSerializer(UserCreateSerializer):
-    """Сериализатор для создания пользователей(наследуется от djoser)"""
-    username = serializers.CharField(max_length=150)
-
-    def validate_username(self, value):
-        if not re.match(r'^[\w.@+-]+$', value):
-            raise serializers.ValidationError(
-                "Username should only contain letters, digits, "
-                "and @/./+/-/_ characters."
-            )
-        return value
-
-    class Meta:
-        model = User
-        fields = ('email', 'username', 'first_name', 'last_name',
-                  'password')
-        extra_kwargs = {'password': {'write_only': True}}
-
 
 class SetPasswordSerializer(serializers.ModelSerializer):
     """Сериализатор для обновления пароля(кастомный)"""
