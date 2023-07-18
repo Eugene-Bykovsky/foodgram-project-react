@@ -62,7 +62,7 @@ class Base64ImageField(serializers.ImageField):
 
 class UsersSerializer(UserSerializer):
     """Сериализатор для пользователей(наследуется от djoser)"""
-    is_subscribed = serializers.SerializerMethodField(read_only=True)
+    is_subscribed = serializers.SerializerMethodField()
 
     def get_is_subscribed(self, obj):
         if (self.context.get('request')
@@ -79,7 +79,7 @@ class UsersSerializer(UserSerializer):
 
 class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для рецептов(кастомный)"""
-    author = UsersSerializer(read_only=True)
+    author = UsersSerializer(many=False)
     ingredients = serializers.SerializerMethodField()
     tags = TagSerializer(many=True)
     image = Base64ImageField()
