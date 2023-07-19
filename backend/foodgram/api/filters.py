@@ -29,4 +29,4 @@ class RecipesFilter(FilterSet):
 
     class Meta:
         model = Recipe
-        fields = ('author', 'tags', 'favorite', 'shopping_cart')
+        fields = 'author', 'tags', 'favorite', 'shopping_cart'
