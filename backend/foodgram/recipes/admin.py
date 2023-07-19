@@ -13,7 +13,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset = queryset.annotate(favorite_count=Count('favorite'))
+        queryset = queryset.annotate(favorite_count=Count('in_favorites'))
         return queryset
 
 
