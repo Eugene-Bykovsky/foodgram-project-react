@@ -239,6 +239,10 @@ class SetPasswordSerializer(serializers.ModelSerializer):
         instance.save()
         return validated_data
 
+    class Meta:
+        model = User
+        fields = 'current_password', 'new_password'
+
 
 # SUBSCRIPTIONS #
 class SubscriptionsSerializer(UsersSerializer):
