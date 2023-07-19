@@ -49,7 +49,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
 
 
 class Base64ImageField(serializers.ImageField):
-    """Сериализатор для кодирования картинок(из теории)"""
+    """Сериализатор для кодирования картинок"""
 
     def to_internal_value(self, data):
         if isinstance(data, str) and data.startswith('data:image'):
@@ -182,7 +182,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         instance.image = validated_data.get('image', instance.image)
         instance.cooking_time = validated_data.get(
             'cooking_time', instance.cooking_time)
-        ingredients = validated_data.pop('recipe_ingredients')
+        ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         instance.tags.clear()
         instance.tags.add(*tags)
@@ -196,7 +196,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 class RecipeFavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
+        fields = 'id', 'name', 'image', 'cooking_time'
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
@@ -266,7 +266,8 @@ class SubscriptionsSerializer(UsersSerializer):
         serializer = RecipeSerializer(recipes, many=True, read_only=True)
         return serializer.data
 
-    def get_recipes_count(self, obj):
+    @staticmethod
+    def get_recipes_count(obj):
         return obj.recipes.count()
 
 
