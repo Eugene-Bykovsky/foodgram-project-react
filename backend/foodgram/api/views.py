@@ -78,6 +78,8 @@ class UsersViewSet(UserViewSet):
             serializer.save()
             return Response({'detail': 'Пароль успешно изменен!'},
                             status=status.HTTP_204_NO_CONTENT)
+        return Response({'detail': 'Ошибки валидации в формате DRF'},
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 class RecipeViewSet(UserViewSet):
