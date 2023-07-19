@@ -12,7 +12,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     @staticmethod
     def count_favorites(obj):
-        return obj.favorite.count()
+        return obj.in_favorites.count()
 
     count_favorites.short_description = 'Число добавлений в избранноe'
 
