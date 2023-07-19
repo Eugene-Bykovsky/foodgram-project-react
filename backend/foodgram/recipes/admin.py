@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.db.models import Count
 
 from .models import (Favorite, Ingredient, Recipe, RecipeIngredientAmount,
                      ShoppingCart, Tag)
@@ -7,14 +6,15 @@ from .models import (Favorite, Ingredient, Recipe, RecipeIngredientAmount,
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'author',)
+    list_display = ('name', 'author', 'count_favorites')
     list_filter = ('author', 'name', 'tags',)
     empty_value_display = '-пусто-'
 
-    def get_queryset(self, request):
-        queryset = super().get_queryset(request)
-        queryset = queryset.annotate(favorite_count=Count('in_favorites'))
-        return queryset
+    @staticmethod
+    def count_favorites(obj):
+        return obj.favorite.count()
+
+    count_favorites.short_description = 'Число добавлений в избранноe'
 
 
 @admin.register(Ingredient)
