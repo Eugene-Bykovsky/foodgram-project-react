@@ -70,14 +70,14 @@ class UsersViewSet(UserViewSet):
         return Response({'detail': 'Неверный метод запроса'},
                         status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    @action(detail=True, methods=['post'],
+    @action(detail=False, methods=['post'],
             permission_classes=(permissions.IsAuthenticated,))
     def set_password(self, request):
         serializer = SetPasswordSerializer(request.user, data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-        return Response({'detail': 'Пароль успешно изменен!'},
-                        status=status.HTTP_204_NO_CONTENT)
+            return Response({'detail': 'Пароль успешно изменен!'},
+                            status=status.HTTP_204_NO_CONTENT)
 
 
 class RecipeViewSet(UserViewSet):
