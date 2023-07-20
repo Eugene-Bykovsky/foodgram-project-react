@@ -21,7 +21,6 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class IngredientCreateSerializer(serializers.ModelSerializer):
     """Сериализатор для добавления ингредиентов при создании рецепта."""
-    id = IntegerField(write_only=True)
 
     class Meta:
         model = RecipeIngredientAmount
@@ -115,7 +114,8 @@ class CreateUserSerializer(UserCreateSerializer):
     """Сериализатор для создания пользователей(наследуется от djoser)"""
     username = serializers.CharField(max_length=150)
 
-    def validate_username(self, value):
+    @staticmethod
+    def validate_username(value):
         if not re.match(r'^[\w.@+-]+$', value):
             raise serializers.ValidationError(
                 "Username should only contain letters, digits, "
