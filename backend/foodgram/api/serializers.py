@@ -21,6 +21,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class IngredientCreateSerializer(serializers.ModelSerializer):
     """Сериализатор для добавления ингредиентов при создании рецепта."""
+    id = ReadOnlyField(source='ingredient.id')
 
     class Meta:
         model = RecipeIngredientAmount
