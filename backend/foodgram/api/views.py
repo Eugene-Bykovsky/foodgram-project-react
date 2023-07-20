@@ -122,7 +122,7 @@ class RecipeViewSet(UserViewSet):
     def shopping_cart(self, request, **kwargs):
         recipe = get_object_or_404(Recipe, id=kwargs['id'])
         if request.method == 'POST':
-            to_shopping, created = Favorite.objects.get_or_create(
+            to_shopping, created = ShoppingCart.objects.get_or_create(
                 user=request.user, recipe=recipe)
             if created:
                 serializer = RecipeShortSerializer(recipe)
