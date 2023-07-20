@@ -3,7 +3,8 @@ import re
 
 from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from recipes.models import Ingredient, Recipe, RecipeIngredientAmount, Tag
+from recipes.models import (Favorite, Ingredient, Recipe,
+                            RecipeIngredientAmount, Tag)
 from rest_framework import serializers
 from rest_framework.fields import CharField, IntegerField, ReadOnlyField
 from rest_framework.relations import PrimaryKeyRelatedField
@@ -91,19 +92,18 @@ class RecipeSerializer(serializers.ModelSerializer):
         return IngredientInRecipeSerializer(ingredients, many=True).data
 
     def get_is_favorited(self, obj):
-        if (self.context.get('request')
-                and not self.context.get('request').user.is_anonymous):
-            return self.context.get('request').user.favorites.filter(
-                user=self.context.get('request').user,
-                recipe=obj).exists()
-        return False
+        if (not self.context.get('request')
+                or self.context.get('request').user.is_anonymous):
+            return False
+        return self.context.get('request').user.favorites.filter(
+            recipe=obj).exists()
 
     def get_is_in_shopping_cart(self, obj):
-        if (self.context.get('request')
-                and not self.context.get('request').user.is_anonymous):
-            return self.context.get('request').user.shopping_carts.filter(
-                recipe=obj).exists()
-        return False
+        if (not self.context.get('request')
+                or self.context.get('request').user.is_anonymous):
+            return False
+        return self.context.get('request').user.shopping_carts.filter(
+            recipe=obj).exists()
 
     class Meta:
         model = Recipe
@@ -201,7 +201,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
     """[POST, DEL]Сериализатор для Избранного (добавление и удаление рец.) """
 
     class Meta:
-        model = Recipe
+        model = Favorite
         fields = 'id', 'name', 'image', 'cooking_time'
 
     def to_representation(self, instance):
