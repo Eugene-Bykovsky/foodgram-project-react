@@ -10,9 +10,7 @@ class IngredientFilter(SearchFilter):
 
 class RecipesFilter(FilterSet):
     tags = filters.AllValuesMultipleFilter(
-        field_name='tags__slug',
-        to_field_name='slug',
-        queryset=Tag.objects.all(),
+        field_name='tags__slug'
     )
     is_favorited = BooleanFilter(method='get_is_favorited')
     is_in_shopping_cart = BooleanFilter(
