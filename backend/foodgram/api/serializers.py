@@ -3,7 +3,8 @@ import re
 
 from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from recipes.models import Ingredient, Recipe, RecipeIngredientAmount, Tag
+from recipes.models import (Favorite, Ingredient, Recipe,
+                            RecipeIngredientAmount, Tag)
 from rest_framework import serializers
 from rest_framework.fields import CharField, IntegerField, ReadOnlyField
 from rest_framework.relations import PrimaryKeyRelatedField
@@ -93,9 +94,9 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         if (self.context.get('request')
                 and not self.context.get('request').user.is_anonymous):
-            return self.context.get('request').user.favorites.filter(
+            return Favorite.objects.filter(
                 user=self.context.get('request').user,
-                recipe=obj).exists()
+                recipe=obj)
         return False
 
     def get_is_in_shopping_cart(self, obj):
