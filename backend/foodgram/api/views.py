@@ -91,7 +91,7 @@ class RecipeViewSet(UserViewSet):
     filterset_class = RecipesFilter
 
     def get_serializer_class(self):
-        if self.request.method in ('POST', 'PATCH', 'DELETE'):
+        if self.request.method in ('POST', 'PATCH'):
             return RecipeCreateSerializer
         return RecipeSerializer
 
