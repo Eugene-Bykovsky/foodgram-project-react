@@ -21,18 +21,10 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class IngredientCreateSerializer(serializers.ModelSerializer):
     """Сериализатор для добавления ингредиентов при создании рецепта."""
-    id = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredient.objects.all(),
-        source='ingredient.id')
-
-    measurement_unit = serializers.CharField(
-        source='ingredient.measurement_unit', read_only=True)
-
-    name = serializers.CharField(source='ingredient.name', read_only=True)
 
     class Meta:
         model = RecipeIngredientAmount
-        fields = 'id', 'amount', 'name', 'measurement_unit'
+        fields = 'id', 'amount'
 
 
 class TagSerializer(serializers.ModelSerializer):
