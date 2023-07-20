@@ -202,7 +202,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Favorite
-        fields = 'id', 'name', 'image', 'cooking_time'
+        fields = 'recipe', 'user'
 
     def to_representation(self, instance):
         request = self.context.get('request')
@@ -217,7 +217,7 @@ class ShoppingCartSerializer(FavoriteSerializer):
 
     class Meta:
         model = ShoppingCart
-        fields = 'id', 'name', 'image', 'cooking_time'
+        fields = 'recipe', 'user'
 
     def to_representation(self, instance):
         request = self.context.get('request')
