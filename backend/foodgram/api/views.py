@@ -13,17 +13,17 @@ from users.models import Subscription, User
 from .filters import IngredientFilter, RecipesFilter
 from .pagination import CustomUsersPagination
 from .permissions import IsAdminOrAuthorOrReadOnly, IsAdminOrReadOnly
-from .serializers import (FavoriteSerializer, IngredientSerializer,
-                          RecipeCreateSerializer, RecipeSerializer,
-                          SetPasswordSerializer, ShoppingCartSerializer,
-                          SubscribeSerializer, SubscriptionsSerializer,
-                          TagSerializer, UsersSerializer)
+from .serializers import (IngredientSerializer, RecipeCreateSerializer,
+                          RecipeSerializer, RecipeShortSerializer,
+                          SetPasswordSerializer, SubscribeSerializer,
+                          SubscriptionsSerializer, TagSerializer,
+                          UsersSerializer)
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = (IngredientFilter, )
+    filter_backends = (IngredientFilter,)
     search_fields = ('^name',)
 
 
@@ -99,11 +99,19 @@ class RecipeViewSet(UserViewSet):
     def favorite(self, request, **kwargs):
         recipe = get_object_or_404(Recipe, id=kwargs['id'])
         if request.method == 'POST':
-            Favorite.objects.create(user=request.user, recipe=recipe)
-            serializer = FavoriteSerializer(recipe)
-            return Response({'detail': 'Рецепт успешно добавлен в избранное!',
-                             'data': serializer.data},
-                            status=status.HTTP_201_CREATED)
+            favorite, created = Favorite.objects.get_or_create(
+                user=request.user, recipe=recipe)
+            if created:
+                serializer = RecipeShortSerializer(recipe)
+                return Response(
+                    {'detail': 'Рецепт успешно добавлен в избранное!',
+                     'data': serializer.data},
+                    status=status.HTTP_201_CREATED)
+            else:
+                return Response(
+                    {'message': 'Рецепт уже находится в избранном.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         recipe = get_object_or_404(Favorite, user=request.user, recipe=recipe)
         recipe.delete()
         return Response({'detail': 'Рецепт успешно удален из избраного'},
@@ -114,11 +122,19 @@ class RecipeViewSet(UserViewSet):
     def shopping_cart(self, request, **kwargs):
         recipe = get_object_or_404(Recipe, id=kwargs['id'])
         if request.method == 'POST':
-            ShoppingCart.objects.create(user=request.user, recipe=recipe)
-            serializer = ShoppingCartSerializer(recipe)
-            return Response({'detail': 'Рецепт добавлен в список покупок!',
-                             'data': serializer.data},
-                            status=status.HTTP_201_CREATED)
+            to_shopping, created = Favorite.objects.get_or_create(
+                user=request.user, recipe=recipe)
+            if created:
+                serializer = RecipeShortSerializer(recipe)
+                return Response(
+                    {'detail': 'Рецепт добавлен в список покупок!',
+                     'data': serializer.data},
+                    status=status.HTTP_201_CREATED)
+            else:
+                return Response(
+                    {'message': 'Рецепт уже находится в списке покупок.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         get_object_or_404(ShoppingCart, user=request.user,
                           recipe=recipe).delete()
         return Response({'detail': 'Рецепт успешно удален из списка покупок'},

@@ -195,11 +195,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return RecipeSerializer(instance, context=context).data
 
 
-class RecipeFavoriteShoppingCartSerializer(serializers.ModelSerializer):
+class RecipeShortSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
+
     class Meta:
         model = Recipe
         fields = 'id', 'name', 'image', 'cooking_time'
-        read_only_fields = ['__all__']
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
@@ -207,13 +208,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Favorite
-        fields = ('user', 'recipe')
-
-    def to_representation(self, instance):
-        return RecipeFavoriteShoppingCartSerializer(
-            instance.recipe,
-            context={'request': self.context.get('request')}
-        ).data
+        fields = 'user', 'recipe'
 
 
 class ShoppingCartSerializer(FavoriteSerializer):
@@ -308,9 +303,7 @@ class SubscribeSerializer(serializers.ModelSerializer):
         recipes = obj.recipes.all()
         if limit:
             recipes = recipes[:int(limit)]
-        serializer = RecipeFavoriteShoppingCartSerializer(recipes,
-                                                          many=True,
-                                                          read_only=True)
+        serializer = RecipeShortSerializer(recipes, many=True, read_only=True)
         return serializer.data
 
 # SUBSCRIPTIONS #
