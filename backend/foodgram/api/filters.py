@@ -1,6 +1,6 @@
 from django_filters import BooleanFilter
 from django_filters.rest_framework import FilterSet, filters
-from recipes.models import Recipe, Tag
+from recipes.models import Recipe
 from rest_framework.filters import SearchFilter
 
 
