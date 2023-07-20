@@ -94,6 +94,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         if (self.context.get('request')
                 and not self.context.get('request').user.is_anonymous):
             return self.context.get('request').user.favorites.filter(
+                user=self.request.user,
                 recipe=obj).exists()
         return False
 
@@ -101,6 +102,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         if (self.context.get('request')
                 and not self.context.get('request').user.is_anonymous):
             return self.context.get('request').user.shopping_carts.filter(
+                user=self.request.user,
                 recipe=obj).exists()
         return False
 
