@@ -4,7 +4,7 @@ import re
 from django.core.files.base import ContentFile
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (Favorite, Ingredient, Recipe,
-                            RecipeIngredientAmount, Tag)
+                            RecipeIngredientAmount, ShoppingCart, Tag)
 from rest_framework import serializers
 from rest_framework.fields import CharField, IntegerField, ReadOnlyField
 from rest_framework.relations import PrimaryKeyRelatedField
@@ -191,7 +191,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         return instance
 
 
-class RecipeFavoriteSerializer(serializers.ModelSerializer):
+class RecipeFavoriteShoppingCartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = 'id', 'name', 'image', 'cooking_time'
@@ -206,7 +206,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         request = self.context.get('request')
-        return RecipeFavoriteSerializer(
+        return RecipeFavoriteShoppingCartSerializer(
             instance.recipe,
             context={'request': request}
         ).data
@@ -214,6 +214,17 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
 class ShoppingCartSerializer(FavoriteSerializer):
     """[POST, DEL]Сериализатор для Списка покупок (добавление и удаление) """
+
+    class Meta:
+        model = ShoppingCart
+        fields = 'id', 'name', 'image', 'cooking_time'
+
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        return RecipeFavoriteShoppingCartSerializer(
+            instance.recipe,
+            context={'request': request}
+        ).data
 
 
 # USERS
