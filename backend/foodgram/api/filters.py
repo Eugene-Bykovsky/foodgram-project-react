@@ -2,6 +2,7 @@ from django_filters import BooleanFilter
 from django_filters.rest_framework import FilterSet, filters
 from recipes.models import Recipe, Tag
 from rest_framework.filters import SearchFilter
+from users.models import User
 
 
 class IngredientFilter(SearchFilter):
@@ -10,13 +11,14 @@ class IngredientFilter(SearchFilter):
 
 class RecipesFilter(FilterSet):
     tags = filters.AllValuesMultipleFilter(
-        field_name='tag__slug',
+        field_name='tags__slug',
         to_field_name='slug',
         queryset=Tag.objects.all(),
     )
     is_favorited = BooleanFilter(method='get_is_favorited')
     is_in_shopping_cart = BooleanFilter(
         method='get_is_in_shopping_cart')
+    author = filters.ModelChoiceFilter(queryset=User.objects.all(),)
 
     def get_is_favorited(self, queryset, name, value):
         if value and not self.request.user.is_anonymous:
