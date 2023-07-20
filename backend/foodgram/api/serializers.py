@@ -155,16 +155,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def save_ingredients(recipe, ingredients):
-        result = []
-        for ingredient in ingredients:
-            current_ingredient = ingredient['id']
-            current_amount = ingredient['amount']
-            result.append(
-                RecipeIngredientAmount(
-                    recipe=recipe,
-                    ingredient=current_ingredient,
-                    amount=current_amount))
-        RecipeIngredientAmount.objects.bulk_create(result)
+        recipe_ingredients = [RecipeIngredientAmount(
+            recipe=recipe,
+            ingredient=Ingredient.objects.get(id=ingredient_id),
+            amount=amount) for
+            ingredient_id, amount in ingredients]
+        RecipeIngredientAmount.objects.bulk_create(recipe_ingredients)
 
     def create(self, validated_data):
         author = self.context['request'].user
