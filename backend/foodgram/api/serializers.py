@@ -21,7 +21,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class IngredientCreateSerializer(serializers.ModelSerializer):
     """Сериализатор для добавления ингредиентов при создании рецепта."""
-    id = ReadOnlyField(source='ingredient.id')
+    id = serializers.IntegerField()
 
     class Meta:
         model = RecipeIngredientAmount
@@ -156,12 +156,13 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def save_ingredients(recipe, ingredients):
-        recipe_ingredients = [RecipeIngredientAmount(
-            recipe=recipe,
-            ingredient=Ingredient.objects.get(id=ingredient_id),
-            amount=amount) for
-            ingredient_id, amount in ingredients]
-        RecipeIngredientAmount.objects.bulk_create(recipe_ingredients)
+        RecipeIngredientAmount.objects.bulk_create(
+            [RecipeIngredientAmount(
+                recipe=recipe,
+                ingredient=Ingredient.objects.get(id=ingredient['id']),
+                amount=ingredient['amount']
+            ) for ingredient in ingredients]
+        )
 
     def create(self, validated_data):
         author = self.context['request'].user
