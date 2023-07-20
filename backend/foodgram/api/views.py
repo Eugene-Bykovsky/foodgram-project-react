@@ -84,14 +84,13 @@ class UsersViewSet(UserViewSet):
 
 class RecipeViewSet(UserViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
     permission_classes = (IsAdminOrAuthorOrReadOnly,)
     pagination_class = CustomUsersPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipesFilter
 
     def get_serializer_class(self):
-        if self.request.method in ('POST', 'PATCH'):
+        if self.request.method in ('POST', 'PATCH', 'DELETE'):
             return RecipeCreateSerializer
         return RecipeSerializer
 
