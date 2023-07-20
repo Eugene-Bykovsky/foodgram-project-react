@@ -95,6 +95,12 @@ class RecipeViewSet(UserViewSet):
             return RecipeSerializer
         return RecipeCreateSerializer
 
+    def delete_from(self, model, user, pk):
+        recipe = get_object_or_404(Recipe, id=pk)
+        obj = get_object_or_404(model, user=user, recipe=recipe)
+        obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(permissions.IsAuthenticated,))
     def favorite(self, request, **kwargs):
