@@ -190,11 +190,16 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+    def to_representation(self, instance):
+        context = {'request': self.context.get('request')}
+        return RecipeSerializer(instance, context=context).data
+
 
 class RecipeFavoriteShoppingCartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = 'id', 'name', 'image', 'cooking_time'
+        read_only_fields = ['__all__']
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
@@ -202,29 +207,20 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Favorite
-        fields = '__all__'
+        fields = ('user', 'recipe')
 
     def to_representation(self, instance):
-        request = self.context.get('request')
         return RecipeFavoriteShoppingCartSerializer(
             instance.recipe,
-            context={'request': request}
+            context={'request': self.context.get('request')}
         ).data
 
 
 class ShoppingCartSerializer(FavoriteSerializer):
     """[POST, DEL]Сериализатор для Списка покупок (добавление и удаление) """
 
-    class Meta:
+    class Meta(FavoriteSerializer.Meta):
         model = ShoppingCart
-        fields = '__all__'
-
-    def to_representation(self, instance):
-        request = self.context.get('request')
-        return RecipeFavoriteShoppingCartSerializer(
-            instance.recipe,
-            context={'request': request}
-        ).data
 
 
 # USERS
