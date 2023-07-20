@@ -164,7 +164,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def save_ingredients(recipe, ingredients):
         result = []
         for ingredient in ingredients:
-            current_ingredient = ingredient['id']
+            current_ingredient = ingredient['ingredient']['id']
             current_amount = ingredient['amount']
             result.append(
                 RecipeIngredientAmount(
