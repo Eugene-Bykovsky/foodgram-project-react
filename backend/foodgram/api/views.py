@@ -94,6 +94,9 @@ class RecipeViewSet(UserViewSet):
             return RecipeSerializer
         return RecipeCreateSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(permissions.IsAuthenticated,))
     def favorite(self, request, **kwargs):
