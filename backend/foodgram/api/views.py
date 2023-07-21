@@ -25,7 +25,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
     serializer_class = IngredientSerializer
     filter_backends = (IngredientFilter,)
     search_fields = ('^name',)
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticated,)
 
 
 class TagViewSet(viewsets.ModelViewSet):
@@ -100,7 +100,7 @@ class RecipeViewSet(UserViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    def perform_update(self, serializer):
+    def perform_destroy(self, serializer):
         serializer.save(author=self.request.user)
 
     @action(detail=True, methods=['post', 'delete'],
