@@ -25,13 +25,11 @@ class IngredientViewSet(viewsets.ModelViewSet):
     serializer_class = IngredientSerializer
     filter_backends = (IngredientFilter,)
     search_fields = ('^name',)
-    permission_classes = (permissions.IsAuthenticated,)
 
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 class UsersViewSet(UserViewSet):
