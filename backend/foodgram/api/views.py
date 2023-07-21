@@ -38,6 +38,7 @@ class UsersViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
     pagination_class = CustomUsersPagination
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     @action(detail=False, methods=['get'],
             permission_classes=(permissions.IsAuthenticated,))
