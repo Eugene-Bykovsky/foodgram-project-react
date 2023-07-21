@@ -3,6 +3,8 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
+from rest_framework.exceptions import PermissionDenied
+
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientAmount, ShoppingCart, Tag)
 from rest_framework import permissions, status, viewsets
@@ -100,8 +102,10 @@ class RecipeViewSet(UserViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    def perform_destroy(self, serializer):
-        serializer.save(author=self.request.user)
+    def perform_update(self, serializer):
+        if serializer.instance.author != self.request.user:
+            raise PermissionDenied('Изменение чужого контента запрещено!')
+        super(RecipeViewSet, self).perform_update(serializer)
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(permissions.IsAuthenticated,))
