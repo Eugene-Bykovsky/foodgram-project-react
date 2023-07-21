@@ -100,7 +100,7 @@ class RecipeViewSet(UserViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    def perform_update(self, serializer):
+    def perform_destroy(self, serializer):
         instance = get_object_or_404(Recipe, author=self.request.user)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
