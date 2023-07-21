@@ -6,8 +6,7 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientAmount, ShoppingCart, Tag)
 from rest_framework import serializers
-from rest_framework.fields import CharField, IntegerField, ReadOnlyField
-from rest_framework.relations import PrimaryKeyRelatedField
+from rest_framework.fields import ReadOnlyField
 from users.models import Subscription, User
 
 
