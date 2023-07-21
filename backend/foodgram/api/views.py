@@ -7,7 +7,6 @@ from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientAmount, ShoppingCart, Tag)
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from users.models import Subscription, User
 
