@@ -23,6 +23,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 class IngredientCreateSerializer(serializers.ModelSerializer):
     """Сериализатор для добавления ингредиентов при создании рецепта."""
     id = serializers.IntegerField()
+    amount = serializers.IntegerField()
 
     class Meta:
         model = RecipeIngredientAmount
@@ -133,11 +134,11 @@ class CreateUserSerializer(UserCreateSerializer):
 class RecipeCreateSerializer(serializers.ModelSerializer):
     """Сериализатор для создания рецептов."""
     ingredients = IngredientCreateSerializer(many=True)
-    tags = PrimaryKeyRelatedField(queryset=Tag.objects.all(),
-                                  many=True)
-    image = Base64ImageField()
-    name = CharField(max_length=200)
-    cooking_time = IntegerField()
+    image = Base64ImageField(
+        max_length=None,
+        use_url=True)
+    author = serializers.PrimaryKeyRelatedField(
+        read_only=True)
 
     @staticmethod
     def validate_cooking_time(value):
@@ -148,9 +149,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('ingredients', 'tags',
-                  'image', 'name', 'text',
-                  'cooking_time')
+        fields = '__all__'
 
     @staticmethod
     def save_ingredients(recipe, ingredients):
