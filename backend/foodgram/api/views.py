@@ -12,7 +12,7 @@ from users.models import Subscription, User
 
 from .filters import IngredientFilter, RecipesFilter
 from .pagination import CustomUsersPagination
-from .permissions import IsAdminOrAuthorOrReadOnly, IsAdminOrReadOnly
+from .permissions import IsAdminOrAuthorOrReadOnly
 from .serializers import (IngredientSerializer, RecipeCreateSerializer,
                           RecipeSerializer, RecipeShortSerializer,
                           SetPasswordSerializer, SubscribeSerializer,
@@ -30,7 +30,6 @@ class IngredientViewSet(viewsets.ModelViewSet):
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = (IsAdminOrReadOnly,)
 
 
 class UsersViewSet(UserViewSet):
