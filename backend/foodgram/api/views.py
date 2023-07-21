@@ -98,8 +98,9 @@ class RecipeViewSet(UserViewSet):
         serializer.save(author=self.request.user)
 
     def perform_destroy(self, serializer):
-        instance = get_object_or_404(Recipe, author=self.request.user)
-        self.perform_destroy(instance)
+        instance = get_object_or_404(Recipe, author=self.request.user,
+                                     id=self.kwargs['id'])
+        instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['post', 'delete'],
