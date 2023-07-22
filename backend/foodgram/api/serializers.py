@@ -176,6 +176,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         if 'tags' in validated_data:
             instance.tags.set(
                 validated_data.pop('tags'))
+        RecipeIngredientAmount.objects.filter(recipe=instance).delete()
         return super().update(
             instance, validated_data)
 
