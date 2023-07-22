@@ -127,7 +127,6 @@ class CreateUserSerializer(UserCreateSerializer):
         model = User
         fields = ('email', 'username', 'first_name', 'last_name',
                   'password', 'id')
-        extra_kwargs = {'password': {'write_only': True}}
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):

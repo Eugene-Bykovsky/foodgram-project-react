@@ -45,7 +45,8 @@ http://158.160.21.46/admin/
 
 ## Пользователь
 login: admin
-password: the same
+email: admin@mail.ru
+password: admin
 
 ### Автор
 
