@@ -1,5 +1,5 @@
 from django.db.models import Sum
-from django.http import Http404, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
@@ -83,7 +83,8 @@ class UsersViewSet(UserViewSet):
 
 class RecipeViewSet(UserViewSet):
     queryset = Recipe.objects.all()
-    permission_classes = (IsAdminOrAuthorOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,
+                          IsAdminOrAuthorOrReadOnly,)
     pagination_class = CustomUsersPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipesFilter
@@ -96,14 +97,6 @@ class RecipeViewSet(UserViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-
-    def destroy(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-            self.perform_destroy(instance)
-        except Http404:
-            pass
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(permissions.IsAuthenticated,))
