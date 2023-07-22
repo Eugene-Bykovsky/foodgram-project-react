@@ -91,10 +91,10 @@ class RecipeViewSet(UserViewSet):
     pagination_class = CustomUsersPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipesFilter
-    http_method_names = ['get', 'post', 'patch', 'delete']
+    serializer_class = RecipeCreateSerializer
 
     def get_serializer_class(self):
-        if self.action in permissions.SAFE_METHODS:
+        if self.request.method == 'GET':
             return RecipeSerializer
         return RecipeCreateSerializer
 
