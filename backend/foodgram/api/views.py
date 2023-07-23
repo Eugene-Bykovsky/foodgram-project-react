@@ -78,8 +78,8 @@ class UsersViewSet(UserViewSet):
                         status=status.HTTP_204_NO_CONTENT)
 
 
-def recipe_add_or_del_method(request, pk, model):
-    recipe = get_object_or_404(Recipe, id=pk)
+def recipe_add_or_del_method(request, model):
+    recipe = get_object_or_404(Recipe, id=request.get('context').kwargs['id'])
     if request.method == 'POST':
         _, created = model.objects.get_or_create(
             user=request.user, recipe=recipe)
@@ -117,13 +117,15 @@ class RecipeViewSet(UserViewSet):
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(permissions.IsAuthenticated,))
-    def favorite(self, request, pk=None):
-        return recipe_add_or_del_method(request, pk, Favorite)
+    def favorite(self):
+        return recipe_add_or_del_method(request=self.request,
+                                        model=Favorite)
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(permissions.IsAuthenticated,))
-    def shopping_cart(self, request, pk=None):
-        return recipe_add_or_del_method(request, pk, ShoppingCart)
+    def shopping_cart(self):
+        return recipe_add_or_del_method(request=self.request,
+                                        model=ShoppingCart)
 
     @action(detail=False, methods=['get'])
     def download_shopping_cart(self, request):
