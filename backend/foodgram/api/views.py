@@ -114,7 +114,7 @@ class RecipeViewSet(UserViewSet):
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(permissions.IsAuthenticated,))
     def shopping_cart(self, request, pk=None):
-        return recipe_add_or_del_method(request, pk, Favorite)
+        return recipe_add_or_del_method(request, pk, ShoppingCart)
 
     @action(detail=False, methods=['get'])
     def download_shopping_cart(self, request):
