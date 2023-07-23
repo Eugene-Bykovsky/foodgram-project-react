@@ -78,16 +78,25 @@ class UsersViewSet(UserViewSet):
                         status=status.HTTP_204_NO_CONTENT)
 
 
-def recipe_add_or_del_method(request, pk, instmodel):
-    user = get_object_or_404(User, username=request.user)
-    recipe = get_object_or_404(Recipe, pk=pk)
-    if str(request.method) == 'POST':
-        instmodel.objects.get_or_create(user=user, recipe=recipe)
-        recipe_serializer = RecipeShortSerializer(recipe)
-        return Response(recipe_serializer.data, status=status.HTTP_201_CREATED)
-    instance = get_object_or_404(instmodel, user=user, recipe=recipe)
-    instance.delete()
-    return Response(status=status.HTTP_204_NO_CONTENT)
+def recipe_add_or_del_method(request, model, pk):
+    recipe = get_object_or_404(Recipe, id=pk)
+    if request.method == 'POST':
+        _, created = model.objects.get_or_create(
+            user=request.user, recipe=recipe)
+        if created:
+            serializer = RecipeShortSerializer(recipe)
+            return Response(
+                {'detail': f'Рецепт добавлен в {model.__name__}!',
+                 'data': serializer.data},
+                status=status.HTTP_201_CREATED)
+        return Response(
+            {'message': f'Рецепт уже находится в {model.__name__}'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    recipe = get_object_or_404(model, user=request.user, recipe=recipe)
+    recipe.delete()
+    return Response({'detail': f'Рецепт успешно удален из {model.__name__}'},
+                    status=status.HTTP_204_NO_CONTENT)
 
 
 class RecipeViewSet(UserViewSet):
@@ -107,14 +116,16 @@ class RecipeViewSet(UserViewSet):
         serializer.save(author=self.request.user)
 
     @action(detail=True, methods=['post', 'delete'],
-            permission_classes=(permissions.IsAuthenticated,), )
-    def favorite(self, request, pk=None):
-        return recipe_add_or_del_method(request, pk, Favorite)
+            permission_classes=(permissions.IsAuthenticated,),)
+    def favorite(self, request, **kwargs):
+        return recipe_add_or_del_method(request=request, model=Favorite,
+                                        pk=kwargs['id'])
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(permissions.IsAuthenticated,))
-    def shopping_cart(self, request, pk=None):
-        return recipe_add_or_del_method(request, pk, ShoppingCart)
+    def shopping_cart(self, request, **kwargs):
+        return recipe_add_or_del_method(request=request, model=ShoppingCart,
+                                        pk=kwargs['id'])
 
     @action(detail=False, methods=['get'])
     def download_shopping_cart(self, request):
