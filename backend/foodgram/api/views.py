@@ -63,25 +63,59 @@ class UsersViewSet(UserViewSet):
             serializer.is_valid(raise_exception=True)
             Subscription.objects.create(user=request.user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        if request.method == 'DELETE':
-            get_object_or_404(Subscription, user=request.user,
-                              author=author).delete()
-            return Response({'detail': 'Успешная отписка'},
-                            status=status.HTTP_204_NO_CONTENT)
-        return Response({'detail': 'Неверный метод запроса'},
-                        status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        get_object_or_404(Subscription, user=request.user,
+                          author=author).delete()
+        return Response({'detail': 'Успешная отписка'},
+                        status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False, methods=['post'],
             permission_classes=(permissions.IsAuthenticated,))
     def set_password(self, request):
         serializer = SetPasswordSerializer(request.user, data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response({'detail': 'Пароль успешно изменен!'},
-                            status=status.HTTP_204_NO_CONTENT)
-        return Response({'detail': 'Ошибки валидации в формате DRF'},
-                        status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'detail': 'Пароль успешно изменен!'},
+                        status=status.HTTP_204_NO_CONTENT)
+
+
+class FavoriteAndShoppingCartMixin:
+    model = None
+    serializer_class = None
+
+    def add_or_remove(self, request, **kwargs):
+        recipe = get_object_or_404(Recipe, id=kwargs['id'])
+        obj, created = self.model.objects.get_or_create(
+            user=request.user, recipe=recipe)
+        if created:
+            serializer = self.serializer_class(recipe)
+            return Response(
+                {'detail': f'Рецепт успешно добавлен в {self.model.__name__}!',
+                 'data': serializer.data},
+                status=status.HTTP_201_CREATED)
+        obj.delete()
+        return Response(
+            {'detail': f'Рецепт успешно удален из {self.model.__name__}.'},
+            status=status.HTTP_204_NO_CONTENT)
+
+
+class FavoriteViewSet(viewsets.ViewSet, FavoriteAndShoppingCartMixin):
+    model = Favorite
+    serializer_class = RecipeShortSerializer
+
+    @action(detail=True, methods=['post', 'delete'],
+            permission_classes=[permissions.IsAuthenticated])
+    def favorite(self, request, **kwargs):
+        return self.add_or_remove(request, **kwargs)
+
+
+class ShoppingCartViewSet(viewsets.ViewSet, FavoriteAndShoppingCartMixin):
+    model = ShoppingCart
+    serializer_class = RecipeShortSerializer
+
+    @action(detail=True, methods=['post', 'delete'],
+            permission_classes=[permissions.IsAuthenticated])
+    def shopping_cart(self, request, **kwargs):
+        return self.add_or_remove(request, **kwargs)
 
 
 class RecipeViewSet(UserViewSet):
@@ -100,58 +134,13 @@ class RecipeViewSet(UserViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    @action(detail=True, methods=['post', 'delete'],
-            permission_classes=(permissions.IsAuthenticated,))
-    def favorite(self, request, **kwargs):
-        recipe = get_object_or_404(Recipe, id=kwargs['id'])
-        if request.method == 'POST':
-            favorite, created = Favorite.objects.get_or_create(
-                user=request.user, recipe=recipe)
-            if created:
-                serializer = RecipeShortSerializer(recipe)
-                return Response(
-                    {'detail': 'Рецепт успешно добавлен в избранное!',
-                     'data': serializer.data},
-                    status=status.HTTP_201_CREATED)
-            else:
-                return Response(
-                    {'message': 'Рецепт уже находится в избранном.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        recipe = get_object_or_404(Favorite, user=request.user, recipe=recipe)
-        recipe.delete()
-        return Response({'detail': 'Рецепт успешно удален из избраного'},
-                        status=status.HTTP_204_NO_CONTENT)
-
-    @action(detail=True, methods=['post', 'delete'],
-            permission_classes=[permissions.IsAuthenticated])
-    def shopping_cart(self, request, **kwargs):
-        recipe = get_object_or_404(Recipe, id=kwargs['id'])
-        if request.method == 'POST':
-            to_shopping, created = ShoppingCart.objects.get_or_create(
-                user=request.user, recipe=recipe)
-            if created:
-                serializer = RecipeShortSerializer(recipe)
-                return Response(
-                    {'detail': 'Рецепт добавлен в список покупок!',
-                     'data': serializer.data},
-                    status=status.HTTP_201_CREATED)
-            else:
-                return Response(
-                    {'message': 'Рецепт уже находится в списке покупок.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        get_object_or_404(ShoppingCart, user=request.user,
-                          recipe=recipe).delete()
-        return Response({'detail': 'Рецепт успешно удален из списка покупок'},
-                        status=status.HTTP_204_NO_CONTENT)
-
     @action(detail=False, methods=['get'])
     def download_shopping_cart(self, request):
         ingredients = RecipeIngredientAmount.objects.filter(
             recipe__in_shopping_carts__user=request.user).values(
             'ingredient__name',
-            'ingredient__measurement_unit').annotate(amount=Sum('amount'))
+            'ingredient__measurement_unit').annotate(
+            total_amount=Sum('amount'))
         data = ingredients.values_list('ingredient__name',
                                        'ingredient__measurement_unit',
                                        'amount')
