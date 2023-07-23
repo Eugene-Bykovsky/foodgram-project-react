@@ -116,12 +116,14 @@ class RecipeViewSet(UserViewSet):
         serializer.save(author=self.request.user)
 
     @action(detail=True, methods=['post', 'delete'],
-            permission_classes=(permissions.IsAuthenticated,))
+            permission_classes=(permissions.IsAuthenticated,),
+            url_path=r'(?P<pk>\d+)/favorite')
     def favorite(self, request, pk=None):
         return recipe_add_or_del_method(request, Favorite, pk)
 
     @action(detail=True, methods=['post', 'delete'],
-            permission_classes=(permissions.IsAuthenticated,))
+            permission_classes=(permissions.IsAuthenticated,),
+            url_path=r'(?P<pk>\d+)/shopping_cart')
     def shopping_cart(self, request, pk=None):
         return recipe_add_or_del_method(request, ShoppingCart, pk)
 
