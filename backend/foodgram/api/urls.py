@@ -12,11 +12,15 @@ router.register('ingredients', IngredientViewSet, basename='ingredients')
 router.register('tags', TagViewSet, basename='tags')
 router.register('users', UsersViewSet, basename='users')
 router.register('recipes', RecipeViewSet, basename='recipes')
-router.register(r'api/recipes/(?P<recipe_id>\d+)/favorite', FavoriteViewSet,
-                basename='favorite')
-router.register(r'api/recipes/(?P<recipe_id>\d+)/shopping_cart',
-                ShoppingCartViewSet,
-                basename='shoppingcart')
+router.register(
+    r'recipes/(?P<recipe_id>\d+)/favorite/(?P<recipe_id>\d+)/favorite/',
+    FavoriteViewSet,
+    basename='favorite')
+router.register(
+    r'recipes/(?P<recipe_id>\d+)/shopping_cart/('
+    r'?P<recipe_id>\d+)/shopping_cart/',
+    ShoppingCartViewSet,
+    basename='shopping_cart')
 
 urlpatterns = (
     path('', include(router.urls)),
