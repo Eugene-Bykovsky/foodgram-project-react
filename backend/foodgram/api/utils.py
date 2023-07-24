@@ -1,8 +1,9 @@
-from .serializers import RecipeShortSerializer
 from django.shortcuts import get_object_or_404
 from recipes.models import Recipe
 from rest_framework import status
 from rest_framework.response import Response
+
+from .serializers import RecipeShortSerializer
 
 
 def recipe_add_or_del_method(request, model, pk):
