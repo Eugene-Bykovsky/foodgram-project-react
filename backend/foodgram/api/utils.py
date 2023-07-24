@@ -4,16 +4,14 @@ from rest_framework import status
 from rest_framework.response import Response
 from users.models import Subscription
 
-from .serializers import RecipeShortSerializer
 
-
-def recipe_add_or_del_method(request, model, pk):
+def recipe_add_or_del_method(request, model, pk, custom_serializer):
     recipe = get_object_or_404(Recipe, id=pk)
     if request.method == 'POST':
         _, created = model.objects.get_or_create(
             user=request.user, recipe=recipe)
         if created:
-            serializer = RecipeShortSerializer(recipe)
+            serializer = custom_serializer(recipe)
             return Response(
                 {'detail': f'Рецепт добавлен в {model.__name__}!',
                  'data': serializer.data},

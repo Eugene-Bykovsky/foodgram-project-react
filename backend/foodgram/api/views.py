@@ -14,9 +14,10 @@ from .filters import IngredientFilter, RecipesFilter
 from .pagination import CustomUsersPagination
 from .permissions import IsAdminOrAuthorOrReadOnly
 from .serializers import (IngredientSerializer, RecipeCreateSerializer,
-                          RecipeSerializer, SetPasswordSerializer,
-                          SubscribeSerializer, SubscriptionsSerializer,
-                          TagSerializer, UsersSerializer)
+                          RecipeSerializer, RecipeShortSerializer,
+                          SetPasswordSerializer, SubscribeSerializer,
+                          SubscriptionsSerializer, TagSerializer,
+                          UsersSerializer)
 from .utils import recipe_add_or_del_method
 
 
@@ -98,13 +99,17 @@ class RecipeViewSet(UserViewSet):
             permission_classes=(permissions.IsAuthenticated,), )
     def favorite(self, request, **kwargs):
         return recipe_add_or_del_method(request=request, model=Favorite,
-                                        pk=kwargs['id'])
+                                        pk=kwargs['id'],
+                                        custom_serializer=RecipeShortSerializer
+                                        )
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(permissions.IsAuthenticated,))
     def shopping_cart(self, request, **kwargs):
         return recipe_add_or_del_method(request=request, model=ShoppingCart,
-                                        pk=kwargs['id'])
+                                        pk=kwargs['id'],
+                                        custom_serializer=RecipeShortSerializer
+                                        )
 
     @action(detail=False, methods=['get'])
     def download_shopping_cart(self, request):
