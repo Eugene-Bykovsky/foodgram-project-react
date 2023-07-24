@@ -1,4 +1,4 @@
-from api.serializers import RecipeShortSerializer
+from .serializers import RecipeShortSerializer
 from django.shortcuts import get_object_or_404
 from recipes.models import Recipe
 from rest_framework import status
