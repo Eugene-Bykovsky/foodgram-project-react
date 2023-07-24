@@ -68,15 +68,16 @@ class UsersSerializer(UserSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для рецептов(кастомный)"""
     author = UsersSerializer(read_only=True)
-    ingredients = RecipeIngredientAmount(
-        many=True,
-        source='ingredients',
-        read_only=True
-    )
+    ingredients = serializers.SerializerMethodField()
     tags = TagSerializer(many=True)
     image = Base64ImageField()
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_ingredients(obj):
+        ingredients = RecipeIngredientAmount.objects.filter(recipe=obj)
+        return IngredientInRecipeSerializer(ingredients, many=True).data
 
     def get_is_favorited(self, obj):
         return (self.context.get('request')
@@ -147,7 +148,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         RecipeIngredientAmount.objects.bulk_create(
             [RecipeIngredientAmount(
                 recipe=recipe,
-                ingredient=ingredient['id'],
+                ingredient=Ingredient.objects.get(id=ingredient['id']),
                 amount=ingredient['amount']
             ) for ingredient in ingredients]
         )
