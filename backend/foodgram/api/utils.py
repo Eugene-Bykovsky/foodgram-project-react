@@ -3,6 +3,7 @@ from recipes.models import Recipe
 from rest_framework import status
 from rest_framework.response import Response
 
+from users.models import Subscription
 from .serializers import RecipeShortSerializer
 
 
@@ -27,8 +28,8 @@ def recipe_add_or_del_method(request, model, pk):
                     status=status.HTTP_204_NO_CONTENT)
 
 
-def check_subscribed(request, obj, model):
+def check_subscribed(request, obj):
     if request and not request.user.is_anonymous:
-        return model.objects.filter(
+        return Subscription.objects.filter(
             user=request.user, author=obj).exists()
     return False
