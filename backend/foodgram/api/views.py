@@ -14,10 +14,10 @@ from .filters import IngredientFilter, RecipesFilter
 from .pagination import CustomUsersPagination
 from .permissions import IsAdminOrAuthorOrReadOnly
 from .serializers import (IngredientSerializer, RecipeCreateSerializer,
-                          RecipeSerializer, RecipeShortSerializer,
-                          SetPasswordSerializer, SubscribeSerializer,
-                          SubscriptionsSerializer, TagSerializer,
-                          UsersSerializer)
+                          RecipeSerializer, SetPasswordSerializer,
+                          SubscribeSerializer, SubscriptionsSerializer,
+                          TagSerializer, UsersSerializer)
+from .utils import recipe_add_or_del_method
 
 
 class IngredientViewSet(viewsets.ModelViewSet):
@@ -78,27 +78,6 @@ class UsersViewSet(UserViewSet):
                         status=status.HTTP_204_NO_CONTENT)
 
 
-def recipe_add_or_del_method(request, model, pk):
-    recipe = get_object_or_404(Recipe, id=pk)
-    if request.method == 'POST':
-        _, created = model.objects.get_or_create(
-            user=request.user, recipe=recipe)
-        if created:
-            serializer = RecipeShortSerializer(recipe)
-            return Response(
-                {'detail': f'Рецепт добавлен в {model.__name__}!',
-                 'data': serializer.data},
-                status=status.HTTP_201_CREATED)
-        return Response(
-            {'message': f'Рецепт уже находится в {model.__name__}'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-    recipe = get_object_or_404(model, user=request.user, recipe=recipe)
-    recipe.delete()
-    return Response({'detail': f'Рецепт успешно удален из {model.__name__}'},
-                    status=status.HTTP_204_NO_CONTENT)
-
-
 class RecipeViewSet(UserViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (IsAdminOrAuthorOrReadOnly,)
@@ -116,7 +95,7 @@ class RecipeViewSet(UserViewSet):
         serializer.save(author=self.request.user)
 
     @action(detail=True, methods=['post', 'delete'],
-            permission_classes=(permissions.IsAuthenticated,),)
+            permission_classes=(permissions.IsAuthenticated,), )
     def favorite(self, request, **kwargs):
         return recipe_add_or_del_method(request=request, model=Favorite,
                                         pk=kwargs['id'])
