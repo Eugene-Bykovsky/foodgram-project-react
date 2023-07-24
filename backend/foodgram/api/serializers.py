@@ -73,8 +73,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_ingredients(obj):
-        ingredients = RecipeIngredientAmount.objects.filter(recipe=obj)
-        return IngredientInRecipeSerializer(ingredients, many=True).data
+        return IngredientInRecipeSerializer(obj.recipe.all(), many=True).data
 
     def get_is_favorited(self, obj):
         return (self.context.get('request')
