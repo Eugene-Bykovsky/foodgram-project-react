@@ -24,3 +24,10 @@ def recipe_add_or_del_method(request, model, pk):
     recipe.delete()
     return Response({'detail': f'Рецепт успешно удален из {model.__name__}'},
                     status=status.HTTP_204_NO_CONTENT)
+
+
+def check_subscribed(request, obj, model):
+    if request and not request.user.is_anonymous:
+        return model.objects.filter(
+            user=request.user, author=obj).exists()
+    return False

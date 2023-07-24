@@ -8,6 +8,7 @@ from rest_framework.fields import ReadOnlyField
 from users.models import Subscription, User
 
 from .fields import Base64ImageField
+from .utils import check_subscribed
 
 
 # RECIPES
@@ -53,11 +54,8 @@ class UsersSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
     def get_is_subscribed(self, obj):
-        if (self.context.get('request')
-                and not self.context.get('request').user.is_anonymous):
-            return Subscription.objects.filter(
-                user=self.context.get('request').user, author=obj).exists()
-        return False
+        return check_subscribed(request=self.context.get('request'), obj=obj,
+                                model=Subscription)
 
     class Meta:
         model = User
@@ -269,11 +267,8 @@ class SubscribeSerializer(serializers.ModelSerializer):
                   'is_subscribed', 'recipes', 'recipes_count')
 
     def get_is_subscribed(self, obj):
-        if (self.context.get('request')
-                and not self.context.get('request').user.is_anonymous):
-            return Subscription.objects.filter(
-                user=self.context.get('request').user, author=obj).exists()
-        return False
+        return check_subscribed(request=self.context.get('request'), obj=obj,
+                                model=Subscription)
 
     @staticmethod
     def get_recipes_count(obj):
