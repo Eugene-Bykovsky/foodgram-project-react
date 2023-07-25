@@ -72,10 +72,6 @@ class RecipeSerializer(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
-    @staticmethod
-    def get_ingredients(obj):
-        return IngredientInRecipeSerializer(obj.ingredients, many=True).data
-
     def get_is_favorited(self, obj):
         return (self.context.get('request')
                 and not self.context.get('request').user.is_anonymous
