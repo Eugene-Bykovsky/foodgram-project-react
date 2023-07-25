@@ -65,11 +65,16 @@ class UsersSerializer(UserSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для рецептов(кастомный)"""
     author = UsersSerializer(read_only=True)
-    ingredients = IngredientInRecipeSerializer(many=True)
+    ingredients = IngredientInRecipeSerializer(many=True,
+                                               source='recipe.ingredients')
     tags = TagSerializer(many=True)
     image = Base64ImageField()
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_ingredients(obj):
+        return IngredientInRecipeSerializer(obj.ingredients, many=True).data
 
     def get_is_favorited(self, obj):
         return (self.context.get('request')
