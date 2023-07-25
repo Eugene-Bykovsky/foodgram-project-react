@@ -66,7 +66,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для рецептов(кастомный)"""
     author = UsersSerializer(read_only=True)
     ingredients = IngredientInRecipeSerializer(many=True,
-                                               source='recipe.ingredients')
+                                               source='recipes')
     tags = TagSerializer(many=True)
     image = Base64ImageField()
     is_favorited = serializers.SerializerMethodField()
