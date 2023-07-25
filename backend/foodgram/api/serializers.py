@@ -1,12 +1,10 @@
 import re
-
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from recipes.models import (Favorite, Ingredient, Recipe,
-                            RecipeIngredientAmount, ShoppingCart, Tag)
 from rest_framework import serializers
 from rest_framework.fields import ReadOnlyField
 from users.models import User
-
+from recipes.models import (Favorite, Ingredient, Recipe,
+                            RecipeIngredientAmount, ShoppingCart, Tag)
 from .fields import Base64ImageField
 from .utils import check_subscribed
 
