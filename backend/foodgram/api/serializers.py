@@ -125,10 +125,10 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 'Данный рецепт уже добавлен!')
         return data
 
-    def validate_ingredients(self, data):
+    def validate_ingredients(self, validated_value):
         ingredients_list = []
-        for ingredient in data.get('ingredients'):
-            if ingredient.get('amount') == 0:
+        for ingredient in validated_value.get('ingredients'):
+            if validated_value.get('amount') == 0:
                 raise serializers.ValidationError(
                     'Количество ингридиентов не может равняться 0!'
                 )
@@ -138,7 +138,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'В рецепте не может быть двух одинаковых ингридиентов!'
             )
-        return data
+        return validated_value
 
     @staticmethod
     def validate_cooking_time(value):
