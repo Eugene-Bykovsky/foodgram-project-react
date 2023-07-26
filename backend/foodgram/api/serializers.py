@@ -181,8 +181,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                     validated_data.pop('tags'))
             return super().update(
                 instance, validated_data)
-        instance.delete()
-        return instance
 
     def to_representation(self, instance):
         context = {'request': self.context.get('request')}

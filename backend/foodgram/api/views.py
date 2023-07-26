@@ -88,7 +88,7 @@ class RecipeViewSet(UserViewSet):
     serializer_class = RecipeCreateSerializer
 
     def get_serializer_class(self):
-        if self.request.method in ['GET', 'PATCH', 'PUT']:
+        if self.request.method == 'GET':
             return RecipeSerializer
         return RecipeCreateSerializer
 
