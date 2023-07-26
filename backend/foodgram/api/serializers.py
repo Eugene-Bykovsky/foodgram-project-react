@@ -125,8 +125,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 'Данный рецепт уже добавлен!')
         return data
 
-    @staticmethod
-    def validate_ingredients(data):
+    def validate_ingredients(self, data):
         ingredients_list = []
         for ingredient in data.get('ingredients'):
             if ingredient.get('amount') == 0:
