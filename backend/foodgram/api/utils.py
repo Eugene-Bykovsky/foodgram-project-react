@@ -1,8 +1,10 @@
 from django.shortcuts import get_object_or_404
+
 from rest_framework import status
 from rest_framework.response import Response
-from users.models import Subscription
+
 from recipes.models import Recipe
+from users.models import Subscription
 
 
 def recipe_add_or_del_method(request, model, pk, custom_serializer):

@@ -1,10 +1,13 @@
 import re
+
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 from rest_framework.fields import ReadOnlyField
-from users.models import User
+
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientAmount, ShoppingCart, Tag)
+from users.models import User
+
 from .fields import Base64ImageField
 from .utils import check_subscribed
 
@@ -121,6 +124,22 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         if Recipe.objects.filter(text=data['text']).exists():
             raise serializers.ValidationError(
                 'Данный рецепт уже добавлен!')
+        return data
+
+    @staticmethod
+    def validate_ingredients(data):
+        ingredients_list = []
+        for ingredient in data.get('ingredients'):
+            if ingredient.get('amount') == 0:
+                raise serializers.ValidationError(
+                    'Количество ингридиентов не может равняться 0!'
+                )
+            ingredients_list.append(ingredient.get('id'))
+        # Пррверяем уникальность
+        if len(set(ingredients_list)) != len(ingredients_list):
+            raise serializers.ValidationError(
+                'В рецепте не может быть двух одинаковых ингридиентов!'
+            )
         return data
 
     @staticmethod
