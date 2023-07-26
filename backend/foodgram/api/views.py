@@ -126,3 +126,10 @@ class RecipeViewSet(UserViewSet):
             shopping_cart += f'- {name} в количестве: {amount} {measure},\n'
         response = HttpResponse(shopping_cart, content_type='text/plain')
         return response
+
+    @action(detail=True, methods=['delete'],
+            permission_classes=(permissions.IsAuthenticated,))
+    def delete(self):
+        recipe = self.get_object()
+        recipe.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
