@@ -127,7 +127,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     def validate_ingredients(self, data):
         ingredients_list = []
-        for ingredient in data['ingredients']:
+        for ingredient in data:
             if ingredient.get('amount') == 0:
                 raise serializers.ValidationError(
                     'Количество ингридиентов не может равняться 0!'
