@@ -7,7 +7,6 @@ from rest_framework.fields import ReadOnlyField
 from recipes.models import (Favorite, Ingredient, Recipe,
                             RecipeIngredientAmount, ShoppingCart, Tag)
 from users.models import User
-
 from .fields import Base64ImageField
 from .utils import check_subscribed
 
