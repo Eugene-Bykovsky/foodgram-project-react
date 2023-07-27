@@ -117,10 +117,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         max_length=None,
         use_url=True)
     author = serializers.PrimaryKeyRelatedField(
-        read_only=True)
+        read_only=True,
+        default=serializers.CurrentUserDefault()
+    )
 
     def validate(self, data):
-        if Recipe.objects.filter(text=data['text']).exists():
+        if Recipe.objects.filter(id=data['id']).exists():
             raise serializers.ValidationError(
                 'Данный рецепт уже добавлен!')
         return data
