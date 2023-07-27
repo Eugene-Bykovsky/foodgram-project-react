@@ -122,13 +122,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, data):
-        if Recipe.objects.filter(text=data['text'],
-                                 ingredients=data['ingredients'],
-                                 name=data['name'],
-                                 cooking_time=data['cooking_time'],
-                                 tags=data['tags']).exists():
-            raise serializers.ValidationError(
-                'Данный рецепт уже добавлен!')
+        if Recipe.objects.exclude(id=data['id']).filter(**data).exists():
+            raise serializers.ValidationError('Данный рецепт уже добавлен!')
         return data
 
     def validate_ingredients(self, data):
