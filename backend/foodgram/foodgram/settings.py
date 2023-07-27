@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY',
                        default='django-insecure-1t&^7g4u29sf5*7740fe@ah=dy7lte%1@qb*)!m#v)sf&%yun(')
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -136,3 +136,7 @@ DJOSER = {
         'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
     },
 }
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+]

@@ -5,6 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import SAFE_METHODS
 from rest_framework.response import Response
 
 from recipes.models import (Favorite, Ingredient, Recipe,
@@ -88,7 +89,7 @@ class RecipeViewSet(UserViewSet):
     serializer_class = RecipeCreateSerializer
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.request.method in SAFE_METHODS:
             return RecipeSerializer
         return RecipeCreateSerializer
 

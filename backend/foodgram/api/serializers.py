@@ -122,7 +122,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, data):
-        if Recipe.objects.filter(id=data['id']).exists():
+        if Recipe.objects.filter(text=data['text'],
+                                 ingredients=data['ingredients'],
+                                 name=data['name'],
+                                 cooking_time=data['cooking_time'],
+                                 tags=data['tags'],
+                                 image=data['image']).exists():
             raise serializers.ValidationError(
                 'Данный рецепт уже добавлен!')
         return data
