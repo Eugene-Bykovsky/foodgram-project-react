@@ -124,7 +124,17 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             queryset = Recipe.objects.exclude(id=self.instance.id)
         else:
             queryset = Recipe.objects.all()
-        if queryset.filter(**data).exists():
+        ingredients = data.get('ingredients', [])
+        ingredient_ids = [ingredient['id'] for ingredient in ingredients]
+
+        if queryset.filter(
+            name=data.get('name'),
+            tags__in=data.get('tags', []),
+            text=data.get('text', ''),
+            cooking_time=data.get('cooking_time', 0),
+            description=data.get('description', ''),
+                ingredients__in=ingredient_ids
+        ).exists():
             raise serializers.ValidationError('Данный рецепт уже добавлен!')
         return data
 
