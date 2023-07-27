@@ -27,20 +27,17 @@ class IngredientViewSet(viewsets.ModelViewSet):
     serializer_class = IngredientSerializer
     filter_backends = (IngredientFilter,)
     search_fields = ('^name',)
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 class UsersViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
     pagination_class = CustomUsersPagination
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     @action(detail=False, methods=['get'],
             permission_classes=(permissions.IsAuthenticated,))
@@ -87,6 +84,7 @@ class RecipeViewSet(UserViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipesFilter
     serializer_class = RecipeCreateSerializer
+    http_method_names = ['get', 'post', 'patch', 'delete', ]
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
