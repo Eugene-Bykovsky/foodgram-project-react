@@ -13,6 +13,7 @@ from recipes.models import (Favorite, Ingredient, Recipe,
 from users.models import Subscription, User
 from .filters import IngredientFilter, RecipesFilter
 from .pagination import CustomUsersPagination
+from .permissions import IsAdminOrAuthorOrReadOnly
 from .serializers import (IngredientSerializer, RecipeCreateSerializer,
                           RecipeSerializer, RecipeShortSerializer,
                           SetPasswordSerializer, SubscribeSerializer,
@@ -26,17 +27,20 @@ class IngredientViewSet(viewsets.ModelViewSet):
     serializer_class = IngredientSerializer
     filter_backends = (IngredientFilter,)
     search_fields = ('^name',)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 
 class UsersViewSet(UserViewSet):
     queryset = User.objects.all()
     serializer_class = UsersSerializer
     pagination_class = CustomUsersPagination
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     @action(detail=False, methods=['get'],
             permission_classes=(permissions.IsAuthenticated,))
@@ -78,7 +82,7 @@ class UsersViewSet(UserViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    permission_classes = (permissions.AllowAny,)
+    permission_classes = (IsAdminOrAuthorOrReadOnly,)
     pagination_class = CustomUsersPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipesFilter
