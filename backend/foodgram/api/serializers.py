@@ -116,16 +116,14 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     image = Base64ImageField(
         max_length=None,
         use_url=True)
-    author = serializers.PrimaryKeyRelatedField(
-        read_only=True,
-        default=serializers.CurrentUserDefault()
-    )
+    author = UsersSerializer(
+        read_only=True)
 
-    def validate(self, data):
-        if Recipe.objects.exclude(id=self.initial_data.get("id")).filter(
-                **data).exists():
-            raise serializers.ValidationError('Данный рецепт уже добавлен!')
-        return data
+    # def validate(self, data):
+    #     if Recipe.objects.exclude(id=self.initial_data.get("id")).filter(
+    #             **data).exists():
+    #         raise serializers.ValidationError('Данный рецепт уже добавлен!')
+    #     return data
 
     def validate_ingredients(self, data):
         ingredients_list = []
