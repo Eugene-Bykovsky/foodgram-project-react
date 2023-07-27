@@ -100,17 +100,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(permissions.IsAuthenticated,), )
-    def favorite(self, request, **kwargs):
+    def favorite(self, request, pk):
         return recipe_add_or_del_method(request=request, model=Favorite,
-                                        pk=kwargs['id'],
+                                        pk=pk,
                                         custom_serializer=RecipeShortSerializer
                                         )
 
     @action(detail=True, methods=['post', 'delete'],
             permission_classes=(permissions.IsAuthenticated,))
-    def shopping_cart(self, request, **kwargs):
+    def shopping_cart(self, request, pk):
         return recipe_add_or_del_method(request=request, model=ShoppingCart,
-                                        pk=kwargs['id'],
+                                        pk=pk,
                                         custom_serializer=RecipeShortSerializer
                                         )
 
