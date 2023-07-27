@@ -131,12 +131,4 @@ DJOSER = {
         'user_create': 'api.serializers.CreateUserSerializer',
         'current_user': 'api.serializers.UsersSerializer'
     },
-    'PERMISSIONS': {
-        'user': ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
-        'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
-    },
 }
-
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-]

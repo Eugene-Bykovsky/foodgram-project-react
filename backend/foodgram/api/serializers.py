@@ -126,8 +126,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                                  ingredients=data['ingredients'],
                                  name=data['name'],
                                  cooking_time=data['cooking_time'],
-                                 tags=data['tags'],
-                                 image=data['image']).exists():
+                                 tags=data['tags']).exists():
             raise serializers.ValidationError(
                 'Данный рецепт уже добавлен!')
         return data
