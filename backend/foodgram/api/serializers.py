@@ -120,22 +120,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         read_only=True)
 
     def validate(self, data):
-        if self.instance is not None:
-            queryset = Recipe.objects.exclude(id=self.instance.id)
-        else:
-            queryset = Recipe.objects.all()
-        ingredients = data.get('ingredients', [])
-        ingredient_ids = [ingredient['id'] for ingredient in ingredients]
-
-        if queryset.filter(
-            name=data.get('name'),
-            tags__in=data.get('tags', []),
-            text=data.get('text', ''),
-            cooking_time=data.get('cooking_time', 0),
-            description=data.get('description', ''),
-                ingredients__in=ingredient_ids
-        ).exists():
-            raise serializers.ValidationError('Данный рецепт уже добавлен!')
+        text = data.get('text')
+        if text and Recipe.objects.filter(text=text).exists():
+            instance = self.instance
+            if instance is None or instance.text != text:
+                raise serializers.ValidationError(
+                    'Данный рецепт уже добавлен!')
         return data
 
     def validate_ingredients(self, data):
