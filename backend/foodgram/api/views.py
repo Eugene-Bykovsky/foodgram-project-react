@@ -79,7 +79,7 @@ class UsersViewSet(UserViewSet):
 
 class RecipeViewSet(UserViewSet):
     queryset = Recipe.objects.all()
-    permission_classes = (IsAdminOrAuthorOrReadOnly,)
+    permission_classes = (permissions.AllowAny,)
     pagination_class = CustomUsersPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipesFilter
