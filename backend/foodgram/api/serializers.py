@@ -121,8 +121,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         default=serializers.CurrentUserDefault()
     )
 
-    def validate(self, data, **kwargs):
-        if Recipe.objects.exclude(id=kwargs['id']).filter(
+    def validate(self, data):
+        if Recipe.objects.exclude(id=self.context.kwargs['id']).filter(
                 **data).exists():
             raise serializers.ValidationError('Данный рецепт уже добавлен!')
         return data
