@@ -76,7 +76,7 @@ class UsersViewSet(UserViewSet):
                         status=status.HTTP_204_NO_CONTENT)
 
 
-class RecipeViewSet(UserViewSet):
+class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = (permissions.AllowAny,)
     pagination_class = CustomUsersPagination
